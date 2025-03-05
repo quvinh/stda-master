@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/v1/:path*", "destination": "https://backmesv1.ors.vn/api/v1/:path" },
+    { "source": "/sample-file/:path*", "destination": "https://backmesv1.ors.vn/:path" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

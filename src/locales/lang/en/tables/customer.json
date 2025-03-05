@@ -1,0 +1,8 @@
+{
+  "columns": {
+    "customer_name": "Customer name",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address"
+  }
+}

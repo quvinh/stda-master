@@ -1,0 +1,7 @@
+{
+  "base": "Master Data",
+  "customer": "Customer management",
+  "template": "Template management",
+  "acceptance-quality-limit": "Acceptance quality limit management",
+  "account-settings": "Account settings"
+}

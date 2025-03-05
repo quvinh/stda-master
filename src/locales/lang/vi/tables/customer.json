@@ -1,0 +1,8 @@
+{
+  "columns": {
+    "customer_name": "Tên khách hàng",
+    "phone": "SĐT",
+    "email": "Email",
+    "address": "Địa chỉ"
+  }
+}

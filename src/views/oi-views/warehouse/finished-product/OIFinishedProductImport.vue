@@ -1,0 +1,256 @@
+<template>
+  <div class="h-screen p-2">
+    <Row :gutter="[8, 8]">
+      <!-- <Col :span="8" class="section-top bg-white">
+        <div class="flex flex-col justify-stretch">
+          <div
+            class="text-center text-white font-600 h-[29.42px] flex justify-center items-center"
+            style="background-color: #2462a3"
+            >Thao tác</div
+          >
+          <Select
+            :loading="loading"
+            :options="[
+              { label: 'Nhập', value: 'import' },
+              { label: 'Xuất', value: 'export' },
+            ]"
+            defaultValue="import"
+            @change="handleActionChange"
+          />
+        </div>
+      </Col> -->
+      <Col :span="8" :xs="24" :sm="8" class="section-top">
+        <Row style="height: 100%" class="bg-white">
+          <Col :span="24">
+            <Row style="height: 100%">
+              <Col
+                :span="10"
+                class="oi-bg-blue flex justify-center items-center text-white border-b border-white"
+              >
+                <span>Kho</span>
+              </Col>
+              <Col :span="14">
+                <Select
+                  :loading="loading"
+                  :options="[
+                    { label: 'Nguyên vật liệu', value: 'material-import' },
+                    { label: 'Thành phẩm', value: 'finished-product-import' },
+                    // { label: 'Bán thành phẩm', value: 'semi-finished-product-import' },
+                  ]"
+                  class="oi-select"
+                  defaultValue="finished-product-import"
+                  @change="handleWarehouseChange"
+                />
+              </Col>
+            </Row>
+          </Col>
+          <Col :span="24">
+            <Row style="height: 100%">
+              <Col
+                :span="10"
+                class="oi-bg-blue flex justify-center items-center text-white border-b border-white"
+              >
+                <span>Thao tác</span>
+              </Col>
+              <Col :span="14">
+                <Select
+                  :loading="loading"
+                  :options="[
+                    { label: 'Nhập', value: 'import' },
+                    { label: 'Xuất', value: 'export' },
+                  ]"
+                  class="oi-select"
+                  defaultValue="import"
+                  @change="handleActionChange"
+                />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </Col>
+      <Col :span="16" :xs="24" :sm="16" class="bg-white">
+        <Table
+          size="small"
+          :loading="loading"
+          :columns="columnsTop"
+          :dataSource="dataTop"
+          :bordered="true"
+          :pagination="false"
+          :locale="{ emptyText: '&nbsp' }"
+          :scroll="{ x: 300 }"
+        />
+      </Col>
+
+      <Col :span="24" class="section-middle">
+        <Row :gutter="[8, 8]">
+          <Col :span="24" :xs="24" :sm="24">
+            <Input class="w-full" placeholder="NHẬP MÃ HOẶC QUÉT QR">
+              <template #prefix>
+                <div class="cursor-pointer" @click="handleOpenModal">
+                  <Icon icon="ant-design:qrcode-outlined" />
+                </div>
+              </template>
+            </Input>
+          </Col>
+          <Col :span="24" :xs="24" :sm="24" class="bg-white">
+            <Table
+              size="small"
+              :loading="loading"
+              :columns="columnsMiddle"
+              :dataSource="dataMiddle"
+              :bordered="true"
+              :pagination="false"
+              :locale="{ emptyText: '&nbsp' }"
+              :scroll="{ x: 650 }"
+            />
+            <!-- <div class="mt-2 flex">
+              <Col :span="12">
+                <DatePicker @change="handleStartDateChange" class="w-full" />
+              </Col>
+              <Col :span="12">
+                <DatePicker @change="handleEndDateChange" class="w-full" />
+              </Col>
+            </div> -->
+          </Col>
+        </Row>
+      </Col>
+      <Col :span="24" class="bg-white h-full">
+        <Table
+          size="small"
+          :loading="loading"
+          :customRow="customRow"
+          :columns="columnsBottom1"
+          :dataSource="dataBottom"
+          :bordered="true"
+          :pagination="false"
+          :scroll="{ y: 250, x: '80vw' }"
+          :rowClassName="rowClassName"
+        />
+      </Col>
+    </Row>
+    <FinishedProductImportScannerModal
+      :width="500"
+      :draggable="false"
+      :maskClosable="false"
+      @register="registerModal"
+      @success="handleSuccess"
+    />
+  </div>
+</template>
+
+<script lang="ts" setup>
+  import { useModal } from '@/components/Modal';
+  import { useGo } from '@/hooks/web/usePage';
+  import { oiTableHeight, requestCameraPermissions } from '@/utils/helper/oiTable';
+  import { Col, Input, Row, Select, Table } from 'ant-design-vue';
+  import { onBeforeMount, onMounted, ref } from 'vue';
+  import FinishedProductImportScannerModal from './components/FinishedProductImportScannerModal.vue';
+  import { columnsBottom1, columnsMiddle, columnsTop } from './components/tableOIWarehouse';
+  import Icon from '@/components/Icon/Icon.vue';
+  import { logOQC } from '@/api/sys/quality';
+  import { searchInventory } from '@/api/sys/warehouse';
+
+  const go = useGo();
+  const windowHeight = ref<number>(window.innerHeight);
+  const dataBottom = ref<any[]>([]);
+  const dataMiddle = ref<any[]>([]);
+  const loading = ref<boolean>(false);
+
+  const dataTop = ref<any[]>([]);
+
+  const [registerModal, { openModal }] = useModal();
+
+  onMounted(() => {
+    fetchData();
+    fetchInventory();
+  });
+
+  async function fetchData(param?: any) {
+    loading.value = true;
+    const response = await logOQC(param);
+    if (response) {
+      dataBottom.value = response;
+    }
+    loading.value = false;
+  }
+
+  async function fetchInventory(param?: any) {
+    loading.value = true;
+    const response = await searchInventory(param);
+    if (response) {
+      dataTop.value = [response];
+    }
+  }
+
+  onBeforeMount(() => {
+    setTimeout(() => {
+      oiTableHeight('table-production', windowHeight.value);
+    }, 300);
+  });
+
+  function handleActionChange(value) {
+    if (value === 'export') go('/oi/warehouse/finished-product-export');
+  }
+
+  async function handleOpenModal() {
+    // Request camera permissions
+    await requestCameraPermissions();
+
+    // TODO: Check middle có dữ liệu Lot
+    // if (dataMiddle.value.length === 0) {
+    //   message.info('CHƯA CÓ THÔNG TIN LOT ĐƯỢC CHỌN');
+    //   return;
+    // }
+    openModal(true, {
+      // data: dataMiddle.value[0],
+    });
+  }
+
+  async function handleSuccess(value) {
+    console.log(value);
+    dataMiddle.value = [];
+    fetchData();
+  }
+
+  function handleWarehouseChange(value) {
+    switch (value) {
+      case 'material-import':
+        go('/oi/warehouse');
+        break;
+      case 'finished-product-import':
+        go('/oi/warehouse/finished-product-import');
+        break;
+      case 'semi-finished-product-import':
+        go('/oi/warehouse/semi-finished-product-import');
+        break;
+    }
+  }
+
+  function rowClassName(record) {
+    if (record?.warehouse_history_import?.id) return 'table-row-grey';
+    return '';
+  }
+
+  const customRow = (record) => {
+    return {
+      onClick: () => {
+        dataMiddle.value = [
+          {
+            ...record,
+            warehouse_location_id: record?.lot?.warehousehistoryimport?.warehouse_location_id,
+          },
+        ];
+      },
+    };
+  };
+
+  // const handleStartDateChange = (date) => {
+  //   const formattedDate = dayjs(date).format('YYYY-MM-DD');
+  //   fetchData({ start_date: formattedDate });
+  // };
+
+  // const handleEndDateChange = (date) => {
+  //   const formattedDate = dayjs(date).format('YYYY-MM-DD');
+  //   fetchData({ end_date: formattedDate });
+  // };
+</script>

@@ -1,0 +1,37 @@
+# Config netlify
+[build]
+  command = "pnpm build"
+  publish = "dist"
+
+# Proxy
+[[redirects]]
+  from = "/v1/*"
+  to = "https://backmesv1.ors.vn/api/v1/:splat"
+  status = 200
+  headers = { X-From = "Netlify" }
+
+# Proxy media
+[[redirects]]
+  from = "/media/*"
+  to = "https://backmesv1.ors.vn/media/:splat"
+  status = 200
+  headers = { X-From = "Netlify" }
+
+[[redirects]]
+  from = "/sample-file/*"
+  to = "https://backmesv1.ors.vn/:splat"
+  status = 200
+  force = false
+  headers = { X-From = "Netlify" }
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Proxy API
+[[redirects]]
+  from = "/api/v1/*"
+  to = "https://backmesv1.ors.vn/api/v1/:splat"
+  status = 200
+  headers = { X-From = "Netlify" }
