@@ -7,7 +7,7 @@
 
     <!-- Content -->
     <div class="flex-1 w-[600px] bg-white flex flex-col h-full border-1 border-gray-300">
-      <div class="flex flex-col w-full h-full justify-between">
+      <div class="flex flex-col w-[99%] h-full justify-between">
         <div class="h-full">
           <div class="flex flex-col justify-start items-start p-1 w-full">
             <span class="font-semibold text-gray-400">Họ và tên: Nguyễn Văn A</span>
@@ -15,16 +15,50 @@
           </div>
           <Row :gutter="10" class="h-full">
             <Col span="12">
-              <div class="h-full flex justify-center items-center">
-                <img :src="Picture1" class="max-w-full" />
+              <div class="h-full flex flex-col justify-start items-center p-2">
+                <img :src="Picture1" class="max-w-full max-h-[50%]" />
+                <div class="h-[400px] overflow-auto">
+                  <h2 class="mb-4"
+                    >Nhiều công ty có tuyên bố Tầm nhìn & Sứ mệnh được đóng khung độc đáo trong
+                    phòng họp quản lý.
+                  </h2>
+                  <p>Các từ rất rộng và lỏng lẻo không có mục tiêu hữu hình để đạt được</p>
+                  <p>Không có mốc thời gian rõ ràng cho mục tiêu cụ thể</p>
+                  <p
+                    >Ban quản lý không tiết lộ khoản đầu tư nào sẽ được thực hiện, doanh thu cần đạt
+                    được và lợi ích cho các bên liên quan</p
+                  >
+                  <p>Nó thiếu các chi tiết định lượng và định tính </p>
+                  <p
+                    >“Góp phần vào phúc lợi của Trái đất” hoàn toàn không cụ thể để đạt được ESG
+                    “góp phần vào phúc lợi của Trái đất” hoàn toàn không cụ thể để đạt được ESG“góp
+                    phần vào phúc lợi của Trái đất” hoàn toàn không cụ thể để đạt được ESG</p
+                  >
+                  <h2 class="mb-4"
+                    >Nhiều công ty có tuyên bố Tầm nhìn & Sứ mệnh được đóng khung độc đáo trong
+                    phòng họp quản lý.
+                  </h2>
+                  <p>Các từ rất rộng và lỏng lẻo không có mục tiêu hữu hình để đạt được</p>
+                  <p>Không có mốc thời gian rõ ràng cho mục tiêu cụ thể</p>
+                  <p
+                    >Ban quản lý không tiết lộ khoản đầu tư nào sẽ được thực hiện, doanh thu cần đạt
+                    được và lợi ích cho các bên liên quan</p
+                  >
+                  <p>Nó thiếu các chi tiết định lượng và định tính </p>
+                  <p
+                    >“Góp phần vào phúc lợi của Trái đất” hoàn toàn không cụ thể để đạt được ESG
+                    “góp phần vào phúc lợi của Trái đất” hoàn toàn không cụ thể để đạt được ESG“góp
+                    phần vào phúc lợi của Trái đất” hoàn toàn không cụ thể để đạt được ESG</p
+                  >
+                </div>
               </div>
             </Col>
             <Col span="12">
-              <div class="h-full flex flex-col justify-center items-center overflow-auto gap-2">
+              <div class="h-full flex flex-col justify-start items-center overflow-auto gap-2 p-2">
                 <Card
                   title="Thành thật mà nói, bạn nghĩ V&M từ ngữ truyền thống như vậy hữu ích như thế nào trong thời đại này?"
                   class="w-full"
-                  v-for="(_, index) in [...new Array(2)]"
+                  v-for="(_, index) in [...new Array(3)]"
                   :key="index"
                 >
                   <RadioGroup v-model:value="selectedReason" class="radio-group">
