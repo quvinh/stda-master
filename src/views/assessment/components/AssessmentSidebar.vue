@@ -13,9 +13,9 @@
         <Row>
           <Col span="6" v-for="(_, index) in [...new Array(questionNumber)]" :key="index">
             <div
-              :class="`${questionNumber - remainQuestionNumber >= index + 1 ? 'bg-gray-300' : ''} border-1 border-gray-300 rounded m-[2px] h-[50px] flex justify-center items-center cursor-pointer relative`"
+              :class="`${questionNumber - remainQuestionNumber >= index + 1 ? 'bg-gray-300' : ''} hover:bg-orange-300 border-1 border-gray-300 rounded m-[2px] h-[50px] flex justify-center items-center cursor-pointer relative`"
             >
-              <div class="font-semibold">{{ index + 1 }}</div>
+              <div class="font-semibold select-none">{{ index + 1 }}</div>
               <!-- Thêm góc cờ đỏ -->
               <div v-if="isFlagged(index)" class="flag-corner"></div>
             </div>
@@ -67,7 +67,7 @@
     >
       <FormItem class="text-center mb-1 p-0">
         <Button block type="primary" size="large" htmlType="submit" class="m-0">
-          <Icon icon="ant-design:save-outlined" /> Hoàn thành
+          <Icon icon="ant-design:check-outlined" /> Hoàn thành
         </Button>
       </FormItem>
     </div>
