@@ -15,8 +15,8 @@
             <Col :xs="24" :md="12" class="flex flex-col md:h-full">
               <!-- Ảnh chiếm 50% chiều cao -->
               <div class="w-full mb-1 p-2 font-bold text-xl flex justify-between items-start">
-                <span>Câu 1</span>
-                <Button size="small"><Icon icon="ant-design:flag-filled" color="red" /></Button>
+                <span>Câu {{ currQuizz.id }}</span>
+                <!-- <Button size="small"><Icon icon="ant-design:flag-filled" color="red" /></Button> -->
               </div>
               <div class="h-[20vh] md:h-[45vh] flex flex-col items-center justify-center p-2">
                 <img :src="Picture1" class="max-w-full max-h-full object-cover" />
@@ -24,10 +24,7 @@
 
               <!-- Nội dung có thể cuộn riêng -->
               <div class="md:flex-1 overflow-auto md:p-2 p-5">
-                <h2 class="mb-4"
-                  >Nhiều công ty có tuyên bố Tầm nhìn & Sứ mệnh được đóng khung độc đáo trong phòng
-                  họp quản lý.</h2
-                >
+                <h2 class="mb-4">{{ currQuizz.name }}</h2>
                 <p>Các từ rất rộng và lỏng lẻo không có mục tiêu hữu hình để đạt được</p>
                 <p>Không có mốc thời gian rõ ràng cho mục tiêu cụ thể</p>
                 <p
@@ -47,17 +44,17 @@
                   bordered
                   title="Thành thật mà nói, bạn nghĩ V&M từ ngữ truyền thống như vậy hữu ích như thế nào trong thời đại này?"
                   class="w-full mb-2"
-                  v-for="(_, index) in [...new Array(5)]"
+                  v-for="(value, index) in currQuizz.questions"
                   :key="index"
                 >
-                  <RadioGroup v-model:value="selectedReason" class="radio-group">
+                  <RadioGroup v-model:value="selectedReason[index]" class="radio-group">
                     <Radio
-                      v-for="(option, index) in reasons"
+                      v-for="(option, index) in value.answers"
                       :key="index"
                       :value="option"
                       :style="radioStyle"
                     >
-                      {{ option }}
+                      {{ option.answer_text }}
                     </Radio>
                   </RadioGroup>
                 </Card>
@@ -70,12 +67,22 @@
         <div
           class="h-[60px] flex justify-between items-center p-1 bg-white border-t border-t-gray-300"
         >
-          <Button type="primary" class="w-[100px]">
+          <Button
+            type="primary"
+            @click="handlePrevQuizz"
+            class="w-[100px]"
+            :disabled="questionNumber === 'first'"
+          >
             <Icon icon="ant-design:double-left-outlined" />
             <span>TRƯỚC</span>
           </Button>
           <span class="font-bold text-xl">Câu 1</span>
-          <Button type="primary" class="w-[100px]">
+          <Button
+            type="primary"
+            @click="handleNextQuizz"
+            class="w-[100px]"
+            :disabled="questionNumber === 'last'"
+          >
             <span>SAU</span>
             <Icon icon="ant-design:double-right-outlined" />
           </Button>
@@ -93,19 +100,35 @@
   import Icon from '@/components/Icon/Icon.vue';
 
   const filter = ref<any>();
-  const selectedReason = ref<any>(null);
-  const reasons = ref<string[]>([
-    'Tất cả các điều khoản I-V của tuyên bố Sứ mệnh Tầm nhìn này là chung chung. ',
-    'V+M này có những từ hành động tốt “giảm”, “cải thiện”, “đạt được” “đem lại sự hài lòng” - nhưng không có mục tiêu rõ ràng',
-    'V & M này ít nhất tuyên bố nhiều điều nó muốn đạt được.',
-    'Tôi sẽ chỉ chọn V+M này nếu nó chứa các mục tiêu hữu hình, với các mốc thời gian rõ ràng; sự đầu tư cần thiết; cùng có lợi cho cả nhân viên và khách hàng',
-  ]);
+  const listQuizzes = ref<any[]>([]);
+  const currQuizz = ref<any>({});
+  const countAnswers = ref(0);
+  const currIndex = ref(0);
+  const selectedReason = ref<any[]>([]);
+  const questionNumber = ref<'first' | 'last' | ''>('first');
+
   const radioStyle = reactive({
     display: 'block',
   });
 
   function handleSidebarFilter(values: any) {
-    console.log(values);
+    console.log(selectedReason.value);
+    listQuizzes.value = values.quizz;
+    currIndex.value = values.currIndex;
+    currQuizz.value = listQuizzes.value[currIndex.value];
+    questionNumber.value = values.questionNumber;
+  }
+
+  function handlePrevQuizz() {
+    currQuizz.value = listQuizzes.value[--currIndex.value];
+    if (Number(currQuizz.value.id) - 2 < 0) questionNumber.value = 'first';
+    else questionNumber.value = '';
+  }
+
+  function handleNextQuizz() {
+    currQuizz.value = listQuizzes.value[++currIndex.value];
+    if (Number(currQuizz.value.id) >= listQuizzes.value.length) questionNumber.value = 'last';
+    else questionNumber.value = '';
   }
 </script>
 

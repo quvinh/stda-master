@@ -11,13 +11,14 @@
       <Divider style="margin: 4px 0; font-size: 14px">Câu hỏi</Divider>
       <div class="h-[calc(100%-125px)] overflow-auto">
         <Row>
-          <Col span="6" v-for="(_, index) in [...new Array(questionNumber)]" :key="index">
+          <Col span="6" v-for="(quizz, index) in quizzes" :key="index">
             <div
+              @click="handlechangeQuizz(quizz)"
               :class="`${questionNumber - remainQuestionNumber >= index + 1 ? 'bg-gray-300' : ''} hover:bg-orange-300 border-1 border-gray-300 rounded m-[2px] h-[50px] flex justify-center items-center cursor-pointer relative`"
             >
               <div class="font-semibold select-none">{{ index + 1 }}</div>
               <!-- Thêm góc cờ đỏ -->
-              <div v-if="isFlagged(index)" class="flag-corner"></div>
+              <!-- <div v-if="isFlagged(index)" class="flag-corner"></div> -->
             </div>
           </Col>
         </Row>
@@ -28,7 +29,7 @@
             <span class="font-bold text-black">Tổng số câu hỏi</span>
           </div>
           <div class="w-1.25/4 border-l-1 border-l-gray-300 flex justify-center items-center">
-            <span class="font-bold text-xl text-blue-800">{{ questionNumber }}</span>
+            <span class="font-bold text-xl text-blue-800">{{ quizzes.length }}</span>
           </div>
         </div>
 
@@ -83,21 +84,76 @@
   const emit = defineEmits(['success']);
 
   const formRef = ref<any>();
+  const questionNumber = ref<'first' | 'last' | ''>('first');
   const formData = reactive<any>({
     id: null,
     name: null,
   });
-  const questionNumber = ref<number>(180);
+  const quizzes = Array.from({ length: 180 }, (_, index) => ({
+    id: index + 1,
+    name: `Nhiều công ty có tuyên bố Tầm nhìn & Sứ mệnh được đóng khung độc đáo trong phòng họp quản lý.`,
+    image: `quiz_${index + 1}.jpg`,
+    description: '',
+    questions: Array.from({ length: 3 }, (__, qIndex) => ({
+      id: index * 3 + qIndex + 1,
+      question_name: `Thành thật mà nói, bạn nghĩ V&M từ ngữ truyền thống như vậy hữu ích như thế nào trong thời đại này?`,
+      quiz_id: index + 1,
+      question_type: (qIndex % 4) + 1,
+      image: qIndex % 2 === 0 ? `question_${qIndex + 1}.jpg` : '',
+      answers: [
+        {
+          id: 1,
+          answer_text:
+            'Tất cả các điều khoản I-V của tuyên bố Sứ mệnh Tầm nhìn này là chung chung. ',
+          is_correct: 0,
+          question_id: qIndex + 1,
+          is_answered: 0,
+        },
+        {
+          id: 2,
+          answer_text:
+            'V+M này có những từ hành động tốt “giảm”, “cải thiện”, “đạt được” “đem lại sự hài lòng” - nhưng không có mục tiêu rõ ràng',
+          is_correct: 0,
+          question_id: qIndex + 1,
+          is_answered: 0,
+        },
+        {
+          id: 3,
+          answer_text: 'V & M này ít nhất tuyên bố nhiều điều nó muốn đạt được.',
+          is_correct: 0,
+          question_id: qIndex + 1,
+          is_answered: 0,
+        },
+        {
+          id: 4,
+          answer_text:
+            'Tôi sẽ chỉ chọn V+M này nếu nó chứa các mục tiêu hữu hình, với các mốc thời gian rõ ràng; sự đầu tư cần thiết; cùng có lợi cho cả nhân viên và khách hàng',
+          is_correct: 0,
+          question_id: qIndex + 1,
+          is_answered: 0,
+        },
+      ],
+    })),
+  }));
+
   const remainQuestionNumber = ref<number>(165);
+  const checkAnswered = ref<boolean[]>([false]);
 
   onMounted(async () => {
     window.addEventListener('resize', updateHeight);
     setTimeout(updateHeight, 300);
+    emit('success', { quizz: quizzes, questionNumber: questionNumber.value, currIndex: 0 });
   });
 
   onUnmounted(() => {
     window.removeEventListener('resize', updateHeight);
   });
+
+  // Hàm fetch câu hỏi (quizzes)
+  // async function fetchQuestion(params?: any) {
+  //   try {
+  //   } catch (error) {}
+  // }
 
   async function updateHeight() {
     const sectionForm: any = document.querySelector('.section-form');
@@ -126,8 +182,19 @@
     emit('success', form.getFieldsValue());
   }
 
-  function isFlagged(index) {
-    return [1, 3, 7, 25].includes(index);
+  // function isFlagged(index) {
+  //   return [1, 3, 7, 25].includes(index);
+  // }
+
+  function handlechangeQuizz(quizz) {
+    if (quizz.id == 1) questionNumber.value = 'first';
+    else if (quizz.id == quizzes.length) questionNumber.value = 'last';
+    else questionNumber.value = '';
+    emit('success', {
+      quizz: quizzes,
+      questionNumber: questionNumber.value,
+      currIndex: quizz.id - 1,
+    });
   }
 </script>
 
