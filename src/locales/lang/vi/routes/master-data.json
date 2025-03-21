@@ -21,5 +21,8 @@
   "template": "QL template",
   "acceptance-quality-limit": "QL tiêu chuẩn bốc mẫu",
   "account-settings": "Thông tin tài khoản",
-  "role": "QL chức vụ"
+  "role": "QL chức vụ",
+  "quizz": "QL Quizz",
+  "question": "QL câu hỏi",
+  "answer": "QL câu trả lời"
 }
