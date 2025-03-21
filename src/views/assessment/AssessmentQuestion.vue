@@ -116,6 +116,7 @@
 
   function handleSidebarFilter(values: any) {
     listQuizzes.value = values.quizz;
+    selectedReason.value = [];
     currIndex.value = values.currIndex;
     currQuizz.value = listQuizzes.value[currIndex.value];
     questionNumber.value = values.questionNumber;
@@ -133,6 +134,11 @@
   }
 
   function handleNextQuizz() {
+    filter.value.set(
+      currIndex.value,
+      Object.values(selectedReason.value).filter((i) => i !== undefined),
+    );
+    selectedReason.value = [];
     currQuizz.value = listQuizzes.value[++currIndex.value];
     if (Number(currQuizz.value.id) >= listQuizzes.value.length) questionNumber.value = 'last';
     else questionNumber.value = '';

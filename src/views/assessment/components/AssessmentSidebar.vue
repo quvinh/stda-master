@@ -79,7 +79,7 @@
   import Icon from '@/components/Icon/Icon.vue';
   import { formatNumber } from '@/utils/helper/tsxHelper';
   import { Button, Col, Divider, Form, FormItem, Row } from 'ant-design-vue';
-  import { onUnmounted, onMounted, unref, ref } from 'vue';
+  import { onUnmounted, onMounted, unref, ref, watch } from 'vue';
 
   const emit = defineEmits(['success']);
 
@@ -154,15 +154,20 @@
     });
   });
 
-  // watch(
-  //   () => props.filter,
-  //   (newValue) => {
-  //     formData.curQuizz = newValue?.currAnswers || [];
-  //     formData.currIndex = newValue?.currIndex ?? -1;
-  //     console.log(formData);
-  //   },
-  //   { deep: true, immediate: true },
-  // );
+  watch(
+    () => props.filter,
+    (newFilter) => {
+      quizzes.forEach((quiz) => {
+        quiz.questions.forEach((question) => {
+          const selectedAnswers = newFilter.get(question.id) || [];
+          question.answers.forEach((answer) => {
+            answer.is_answered = selectedAnswers.includes(answer.id) ? 1 : 0;
+          });
+        });
+      });
+    },
+    { deep: true },
+  );
 
   onUnmounted(() => {
     window.removeEventListener('resize', updateHeight);
@@ -209,7 +214,6 @@
     if (quizz.id == 1) questionNumber.value = 'first';
     else if (quizz.id == quizzes.length) questionNumber.value = 'last';
     else questionNumber.value = '';
-
     emit('success', {
       quizz: quizzes,
       questionNumber: questionNumber.value,
