@@ -14,7 +14,7 @@
           <Col span="6" v-for="(quizz, index) in quizzes" :key="index">
             <div
               @click="handlechangeQuizz(quizz)"
-              :class="`${questionNumber - remainQuestionNumber >= index + 1 ? 'bg-gray-300' : ''} hover:bg-orange-300 border-1 border-gray-300 rounded m-[2px] h-[50px] flex justify-center items-center cursor-pointer relative`"
+              :class="`${props.filter.has(index) && props.filter.get(index)?.length === quizzes[index].questions.length ? 'bg-gray-300' : ''} hover:bg-orange-300 border-1 border-gray-300 rounded m-[2px] h-[50px] flex justify-center items-center cursor-pointer relative`"
             >
               <div class="font-semibold select-none">{{ index + 1 }}</div>
               <!-- Thêm góc cờ đỏ -->
@@ -79,15 +79,21 @@
   import Icon from '@/components/Icon/Icon.vue';
   import { formatNumber } from '@/utils/helper/tsxHelper';
   import { Button, Col, Divider, Form, FormItem, Row } from 'ant-design-vue';
-  import { onUnmounted, onMounted, unref, ref, reactive } from 'vue';
+  import { onUnmounted, onMounted, unref, ref } from 'vue';
 
   const emit = defineEmits(['success']);
 
   const formRef = ref<any>();
   const questionNumber = ref<'first' | 'last' | ''>('first');
-  const formData = reactive<any>({
-    id: null,
-    name: null,
+
+  const props = defineProps<{
+    filter: Map<number, any[]>;
+  }>();
+
+  const curIndex = ref(0);
+  const formData = ref<any>({
+    curQuizz: [],
+    currIndex: undefined,
   });
   const quizzes = Array.from({ length: 180 }, (_, index) => ({
     id: index + 1,
@@ -137,13 +143,26 @@
   }));
 
   const remainQuestionNumber = ref<number>(165);
-  const checkAnswered = ref<boolean[]>([false]);
 
   onMounted(async () => {
     window.addEventListener('resize', updateHeight);
     setTimeout(updateHeight, 300);
-    emit('success', { quizz: quizzes, questionNumber: questionNumber.value, currIndex: 0 });
+    emit('success', {
+      quizz: quizzes,
+      questionNumber: questionNumber.value,
+      currIndex: curIndex.value,
+    });
   });
+
+  // watch(
+  //   () => props.filter,
+  //   (newValue) => {
+  //     formData.curQuizz = newValue?.currAnswers || [];
+  //     formData.currIndex = newValue?.currIndex ?? -1;
+  //     console.log(formData);
+  //   },
+  //   { deep: true, immediate: true },
+  // );
 
   onUnmounted(() => {
     window.removeEventListener('resize', updateHeight);
@@ -190,10 +209,11 @@
     if (quizz.id == 1) questionNumber.value = 'first';
     else if (quizz.id == quizzes.length) questionNumber.value = 'last';
     else questionNumber.value = '';
+
     emit('success', {
       quizz: quizzes,
       questionNumber: questionNumber.value,
-      currIndex: quizz.id - 1,
+      currIndex: (curIndex.value = quizz.id - 1),
     });
   }
 </script>

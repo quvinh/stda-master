@@ -2,7 +2,11 @@
   <div class="flex pt-1 h-full">
     <!-- Sidebar query -->
     <div class="hidden lg:block w-[270px] mr-1">
-      <AssessmentSidebar :filter="filter" @success="handleSidebarFilter" />
+      <AssessmentSidebar
+        :filter="filter"
+        :selectedReason="selectedReason"
+        @success="handleSidebarFilter"
+      />
     </div>
 
     <!-- Content -->
@@ -47,7 +51,7 @@
                   v-for="(value, index) in currQuizz.questions"
                   :key="index"
                 >
-                  <RadioGroup v-model:value="selectedReason[index]" class="radio-group">
+                  <RadioGroup class="radio-group" v-model:value="selectedReason[index]">
                     <Radio
                       v-for="(option, index) in value.answers"
                       :key="index"
@@ -76,7 +80,7 @@
             <Icon icon="ant-design:double-left-outlined" />
             <span>TRƯỚC</span>
           </Button>
-          <span class="font-bold text-xl">Câu 1</span>
+          <span class="font-bold text-xl">Câu {{ currQuizz.id }}</span>
           <Button
             type="primary"
             @click="handleNextQuizz"
@@ -99,12 +103,11 @@
   import { Button, Card, Col, Radio, RadioGroup, Row } from 'ant-design-vue';
   import Icon from '@/components/Icon/Icon.vue';
 
-  const filter = ref<any>();
   const listQuizzes = ref<any[]>([]);
   const currQuizz = ref<any>({});
-  const countAnswers = ref(0);
   const currIndex = ref(0);
-  const selectedReason = ref<any[]>([]);
+  const filter = ref<Map<number, any[]>>(new Map());
+  const selectedReason = ref<{ [key: number]: any }>({});
   const questionNumber = ref<'first' | 'last' | ''>('first');
 
   const radioStyle = reactive({
@@ -112,7 +115,6 @@
   });
 
   function handleSidebarFilter(values: any) {
-    console.log(selectedReason.value);
     listQuizzes.value = values.quizz;
     currIndex.value = values.currIndex;
     currQuizz.value = listQuizzes.value[currIndex.value];
@@ -120,6 +122,11 @@
   }
 
   function handlePrevQuizz() {
+    filter.value.set(
+      currIndex.value,
+      Object.values(selectedReason.value).filter((i) => i !== undefined),
+    );
+    selectedReason.value = [];
     currQuizz.value = listQuizzes.value[--currIndex.value];
     if (Number(currQuizz.value.id) - 2 < 0) questionNumber.value = 'first';
     else questionNumber.value = '';
