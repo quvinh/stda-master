@@ -2,37 +2,26 @@ import type { AppRouteModule } from '@/router/types';
 
 import { LAYOUT } from '@/router/constant';
 
-const kpi: AppRouteModule = {
-  path: '/kpi',
-  name: 'KPIPage',
+const survey: AppRouteModule = {
+  path: '/survey',
+  name: 'Survey',
   component: LAYOUT,
-  redirect: '/kpi',
+  redirect: '/survey/index',
   meta: {
     orderNo: 70,
-    icon: 'tabler:chart-bar',
-    title: 'KPI',
-    hideChildrenInMenu: true,
+    icon: 'ant-design:question-circle-outlined',
+    title: 'Thống kê',
   },
   children: [
-    // {
-    //   path: '',
-    //   name: 'UIKPI',
-    //   component: () => import('@/views/kpi/KPI.vue'),
-    //   meta: {
-    //     // affix: true,
-    //     title: 'KPI',
-    //   },
-    // },
     {
-      path: '',
-      name: 'UIKPI',
-      component: () => import('@/views/kpi/KPI2.vue'),
+      path: 'index',
+      name: 'UISurvey',
+      component: () => import('@/views/kpi/Survey.vue'),
       meta: {
-        // affix: true,
-        title: 'KPI',
+        title: 'Thống kê',
       },
     },
   ],
 };
 
-export default kpi;
+export default survey;

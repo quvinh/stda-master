@@ -79,13 +79,12 @@
 </template>
 
 <script setup lang="ts">
-  import { complete, getQuizz } from '@/api/sys/quizz';
+  import { complete, getQuizz, submitQuiz } from '@/api/sys/quizz';
   import Icon from '@/components/Icon/Icon.vue';
   import { formatNumber } from '@/utils/helper/tsxHelper';
   import { Button, Col, Divider, Form, FormItem, message, Row } from 'ant-design-vue';
-  import { onUnmounted, onMounted, unref, ref, watch } from 'vue';
+  import { onUnmounted, onMounted, unref, ref, watch, computed } from 'vue';
   import { number } from 'vue-types';
-  import { submitQuiz } from '@/api/sys/quizz';
 
   type DataMap = Map<number, Map<number, number>>;
   type AnyArrayMap = Map<number, any[]>;
