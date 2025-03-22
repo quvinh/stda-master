@@ -14,7 +14,7 @@
           <Col span="6" v-for="(quizz, index) in quizzes" :key="index">
             <div
               @click="handlechangeQuizz(quizz)"
-              :class="`${props.filter.anyArrayMap.has(index) && props.filter.anyArrayMap.get(index)?.length === quizzes[index].questions.length ? 'bg-gray-300' : ''} hover:bg-orange-300 border-1 border-gray-300 rounded m-[2px] h-[50px] flex justify-center items-center cursor-pointer relative`"
+              :class="`${listQuizCompleted.some((i) => quizz.id === i.quiz_id) ? 'bg-gray-300' : ''} hover:bg-orange-300 border-1 border-gray-300 rounded m-[2px] h-[50px] flex justify-center items-center cursor-pointer relative`"
             >
               <div class="font-semibold select-none">{{ index + 1 }}</div>
             </div>
@@ -35,13 +35,11 @@
           <div class="w-2.75/4 flex flex-row gap-1 justify-start items-center p-1">
             <span class="font-bold text-black">Bạn đã trả lời</span>
             <small class="font-semibold text-gray-500"
-              >({{
-                formatNumber(((questionNumber - remainQuestionNumber) / questionNumber) * 100)
-              }}%)</small
+              >({{ formatNumber((listQuizCompleted.length / quizzes.length) * 100) }}%)</small
             >
           </div>
           <div class="w-1.25/4 border-l-1 border-l-gray-300 flex justify-center items-center">
-            <span class="font-bold text-xl text-green-500">{{ 0 }}</span>
+            <span class="font-bold text-xl text-green-500">{{ listQuizCompleted.length }}</span>
           </div>
         </div>
 
@@ -49,11 +47,15 @@
           <div class="w-2.75/4 flex flex-row gap-1 justify-start items-center p-1">
             <span class="font-bold text-black">Câu hỏi còn lại</span>
             <small class="font-semibold text-gray-500"
-              >({{ formatNumber((remainQuestionNumber / questionNumber) * 100) }}%)</small
+              >({{
+                formatNumber(((quizzes.length - listQuizCompleted.length) / quizzes.length) * 100)
+              }}%)</small
             >
           </div>
           <div class="w-1.25/4 border-l-1 border-l-gray-300 flex justify-center items-center">
-            <span class="font-bold text-xl text-red-500">{{ remainQuestionNumber }}</span>
+            <span class="font-bold text-xl text-red-500">{{
+              quizzes.length - listQuizCompleted.length
+            }}</span>
           </div>
         </div>
       </div>
@@ -79,59 +81,54 @@
 </template>
 
 <script setup lang="ts">
-  import { complete, getQuizz, submitQuiz } from '@/api/sys/quizz';
+  import { countQuizComlete, getQuizz, submitQuiz } from '@/api/sys/quizz';
   import Icon from '@/components/Icon/Icon.vue';
   import { formatNumber } from '@/utils/helper/tsxHelper';
   import { Button, Col, Divider, Form, FormItem, message, Row } from 'ant-design-vue';
-  import { onUnmounted, onMounted, unref, ref, watch, computed } from 'vue';
+  import { onUnmounted, onMounted, unref, ref, watch } from 'vue';
   import { number } from 'vue-types';
+  import { filter } from 'xe-utils';
 
-  type DataMap = Map<number, Map<number, number>>;
-  type AnyArrayMap = Map<number, any[]>;
   const emit = defineEmits(['success']);
 
   const formRef = ref<any>();
   const questionNumber = ref<'first' | 'last' | ''>('first');
 
-  const props = defineProps<{
-    filter: { dataMap: DataMap; anyArrayMap: AnyArrayMap };
-  }>();
-
   const curIndex = ref(0);
+  const listQuizCompleted = ref<any[]>([]);
   const formData = ref<any>({
     curQuizz: [],
     currIndex: undefined,
   });
   const quizzes = ref<any[]>([]);
-  const data = ref<DataMap>(new Map());
-
-  const remainQuestionNumber = ref<number>(165);
 
   onMounted(async () => {
     window.addEventListener('resize', updateHeight);
     setTimeout(updateHeight, 300);
     fetchQuestion();
+    fetchQuizComleted();
   });
-
-  watch(
-    () => props.filter,
-    (newFilter) => {
-      quizzes.value.forEach((quiz) => {
-        quiz.questions.forEach((question) => {
-          const selectedAnswers = newFilter.anyArrayMap.get(question.id) || [];
-          question.answers.forEach((answer) => {
-            answer.is_answered = selectedAnswers.includes(answer.id) ? 1 : 0;
-          });
-        });
-      });
-      data.value = newFilter.dataMap;
-    },
-    { deep: true },
-  );
 
   onUnmounted(() => {
     window.removeEventListener('resize', updateHeight);
   });
+
+  const props = defineProps({
+    filter: {
+      type: Object as PropType<{ currIdx: number }>,
+    },
+  });
+
+  watch(
+    () => props.filter,
+    (newValue) => {
+      if (newValue) {
+        curIndex.value = newValue.currIdx;
+        fetchQuizComleted();
+      }
+    },
+    { deep: true },
+  );
 
   async function fetchQuestion(params: any = {}) {
     try {
@@ -180,6 +177,17 @@
   //   return [1, 3, 7, 25].includes(index);
   // }
 
+  async function fetchQuizComleted() {
+    try {
+      const response: any = await countQuizComlete();
+      if (response) {
+        listQuizCompleted.value = response;
+      }
+    } catch (error) {
+      message.error('THAO TÁC THẤT BẠI');
+    }
+  }
+
   function handlechangeQuizz(quizz) {
     if (quizz.id == 1) questionNumber.value = 'first';
     else if (quizz.id == quizzes.value.length) questionNumber.value = 'last';
@@ -192,18 +200,19 @@
   }
 
   async function handleComplete() {
-    const quizIds = Array.from(data.value.keys());
-
-    if (quizIds.length === 0) {
-      message.warning('Không có bài thi nào để nộp!');
-      return;
-    }
-
     try {
-      await Promise.all(quizIds.map((quiz_id) => submitQuiz({ quiz_id })));
-      message.success('Tất cả bài thi đã được nộp thành công');
+      const response: any = await submitQuiz({ quiz_id: quizzes.value[curIndex.value].id });
+      if (response) {
+        message.success('NỘP BÀI THÀNH CÔNG');
+        emit('success', {
+          quizz: quizzes.value,
+          questionNumber: questionNumber.value,
+          currIndex: curIndex.value,
+        });
+      }
+      fetchQuizComleted();
     } catch (error) {
-      message.error('Nộp bài thi thất bại');
+      message.error('NỘP BÀI THẤT BẠI');
     }
   }
 </script>

@@ -45,14 +45,11 @@
                   :key="index"
                 >
                   <p class="font-bold text-base">{{ value.question_text }}</p>
-                  <RadioGroup
-                    @change="handleChange(index)"
-                    class="radio-group"
-                    v-model:value="selectedReason[index]"
-                  >
+                  <RadioGroup class="radio-group" v-model:value="selectedReason[index]">
                     <Radio
-                      v-for="(option, index) in value.answers"
-                      :key="index"
+                      v-for="(option, aIndex) in value.answers"
+                      :key="aIndex"
+                      @change="handleChange(index, aIndex)"
                       :value="option.id"
                       :style="radioStyle"
                     >
@@ -95,26 +92,19 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, reactive, ref } from 'vue';
+  import { reactive, ref } from 'vue';
   import AssessmentSidebar from './components/AssessmentSidebar.vue';
   import Picture1 from '@/assets/images/Picture1.png';
   import { Button, Card, Col, Radio, RadioGroup, Row } from 'ant-design-vue';
   import Icon from '@/components/Icon/Icon.vue';
   import { saveAnswer } from '@/api/sys/quizz';
 
-  type DataMap = Map<number, Map<number, number>>;
-  type AnyArrayMap = Map<number, any[]>;
   const listQuizzes = ref<any[]>([]);
+  const filter = ref<{ currIdx: number }>({ currIdx: 0 });
   const currQuizz = ref<any>({});
   const currIndex = ref(0);
-  const filter = ref<{ dataMap: DataMap; anyArrayMap: AnyArrayMap }>({
-    dataMap: new Map(),
-    anyArrayMap: new Map(),
-  });
   const selectedReason = ref<{ [key: number]: any }>({});
   const questionNumber = ref<'first' | 'last' | ''>('first');
-
-  const data = ref<DataMap>(new Map());
 
   const radioStyle = reactive({
     display: 'block',
@@ -125,65 +115,36 @@
     selectedReason.value = [];
     currIndex.value = values.currIndex;
     currQuizz.value = values.quizz[currIndex.value];
+    filter.value.currIdx = currIndex.value;
     questionNumber.value = values.questionNumber;
   }
-  //map<int, set<pair<int, score>>>
   function handlePrevQuizz() {
-    filter.value.anyArrayMap.set(
-      currIndex.value,
-      Object.values(selectedReason.value).filter((i) => i !== undefined),
-    );
     selectedReason.value = [];
-    currQuizz.value = listQuizzes.value[--currIndex.value];
+    currIndex.value--;
+    currQuizz.value = listQuizzes.value[currIndex.value];
     if (Number(currQuizz.value.id) - 2 < 0) questionNumber.value = 'first';
     else questionNumber.value = '';
+    filter.value.currIdx = currIndex.value;
   }
 
   function handleNextQuizz() {
-    filter.value.anyArrayMap.set(
-      currIndex.value,
-      Object.values(selectedReason.value).filter((i) => i !== undefined),
-    );
     selectedReason.value = [];
-    currQuizz.value = listQuizzes.value[++currIndex.value];
+    currIndex.value++;
+    filter.value.currIdx = currIndex.value;
+    currQuizz.value = listQuizzes.value[currIndex.value];
     if (Number(currQuizz.value.id) >= listQuizzes.value.length) questionNumber.value = 'last';
     else questionNumber.value = '';
   }
 
-  // const handleChange = (index: number) => {
-  //   const value = selectedReason.value[index];
-  //   if (!data.value.has(currQuizz.value.id)) {
-  //     data.value.set(currQuizz.value.id, new Map());
-  //   }
-  //   const quizMap = data.value.get(currQuizz.value.id)!;
-  //   if (!quizMap.has(value.question_id)) {
-  //     quizMap.set(value.question_id, value.score);
-  //   } else {
-  //     quizMap.set(value.question_id, value.score);
-  //   }
-  //   filter.value.dataMap = data.value;
-  // };
-
-  const handleChange = async (index: number) => {
-    const answer = selectedReason.value[index]; // answer_id
-    const question = currQuizz.value.questions[index]; // question_id
-
-    if (!answer || !question) return;
-
-    if (!data.value.has(currQuizz.value.id)) {
-      data.value.set(currQuizz.value.id, new Map());
-    }
-    const quizMap = data.value.get(currQuizz.value.id)!;
-    quizMap.set(question.id, answer);
-    filter.value.dataMap = data.value;
-
+  const handleChange = async (index: number, aIndex: number) => {
+    const score = currQuizz.value.questions[index].answers[aIndex].score; // điểm của câu hỏi thuộc quiz
+    const question_id = currQuizz.value.questions[index].id; // question_id
     try {
       await saveAnswer({
         quiz_id: currQuizz.value.id,
-        question_id: question.id,
-        answer_id: answer,
+        question_id: question_id,
+        score: score,
       });
-      console.log('Lưu câu trả lời thành công');
     } catch (error) {
       console.error('Lưu câu trả lời thất bại', error);
     }
