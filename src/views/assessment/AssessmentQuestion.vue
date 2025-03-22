@@ -136,6 +136,7 @@
     selectedReason.value = [];
     currIndex.value--;
     currQuizz.value = listQuizzes.value[currIndex.value];
+    fetchAnsweredQuestions();
     if (Number(currQuizz.value.id) - 2 < 0) questionNumber.value = 'first';
     else questionNumber.value = '';
     filter.value.currIdx = currIndex.value;
@@ -146,6 +147,7 @@
     currIndex.value++;
     filter.value.currIdx = currIndex.value;
     currQuizz.value = listQuizzes.value[currIndex.value];
+    fetchAnsweredQuestions();
     if (Number(currQuizz.value.id) >= listQuizzes.value.length) questionNumber.value = 'last';
     else questionNumber.value = '';
   }
