@@ -53,7 +53,7 @@
                     <Radio
                       v-for="(option, index) in value.answers"
                       :key="index"
-                      :value="option"
+                      :value="option.id"
                       :style="radioStyle"
                     >
                       {{ option.answer_text }}
@@ -95,11 +95,12 @@
 </template>
 
 <script setup lang="ts">
-  import { reactive, ref } from 'vue';
+  import { computed, reactive, ref } from 'vue';
   import AssessmentSidebar from './components/AssessmentSidebar.vue';
   import Picture1 from '@/assets/images/Picture1.png';
   import { Button, Card, Col, Radio, RadioGroup, Row } from 'ant-design-vue';
   import Icon from '@/components/Icon/Icon.vue';
+  import { saveAnswer } from '@/api/sys/quizz';
 
   type DataMap = Map<number, Map<number, number>>;
   type AnyArrayMap = Map<number, any[]>;
@@ -126,6 +127,7 @@
     currQuizz.value = values.quizz[currIndex.value];
     questionNumber.value = values.questionNumber;
   }
+  //map<int, set<pair<int, score>>>
   function handlePrevQuizz() {
     filter.value.anyArrayMap.set(
       currIndex.value,
@@ -148,18 +150,43 @@
     else questionNumber.value = '';
   }
 
-  const handleChange = (index: number) => {
-    const value = selectedReason.value[index];
-    const ques = listQuizzes.value[currIndex.value];
-    if (!data.value.has(ques.id)) {
-      data.value.set(ques.id, new Map());
-      data.value.get(ques.id)?.set(value.id, value.score);
-    } else {
-      if (!data.value.get(ques.id)?.has(value.id)) {
-        data.value.get(ques.id)?.set(value.id, value.score);
-      } else data.value.get(currQuizz.value.id)?.set(value.question_id, value.score);
+  // const handleChange = (index: number) => {
+  //   const value = selectedReason.value[index];
+  //   if (!data.value.has(currQuizz.value.id)) {
+  //     data.value.set(currQuizz.value.id, new Map());
+  //   }
+  //   const quizMap = data.value.get(currQuizz.value.id)!;
+  //   if (!quizMap.has(value.question_id)) {
+  //     quizMap.set(value.question_id, value.score);
+  //   } else {
+  //     quizMap.set(value.question_id, value.score);
+  //   }
+  //   filter.value.dataMap = data.value;
+  // };
+
+  const handleChange = async (index: number) => {
+    const answer = selectedReason.value[index]; // answer_id
+    const question = currQuizz.value.questions[index]; // question_id
+
+    if (!answer || !question) return;
+
+    if (!data.value.has(currQuizz.value.id)) {
+      data.value.set(currQuizz.value.id, new Map());
     }
+    const quizMap = data.value.get(currQuizz.value.id)!;
+    quizMap.set(question.id, answer);
     filter.value.dataMap = data.value;
+
+    try {
+      await saveAnswer({
+        quiz_id: currQuizz.value.id,
+        question_id: question.id,
+        answer_id: answer,
+      });
+      console.log('Lưu câu trả lời thành công');
+    } catch (error) {
+      console.error('Lưu câu trả lời thất bại', error);
+    }
   };
 </script>
 
