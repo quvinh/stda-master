@@ -96,52 +96,7 @@
     curQuizz: [],
     currIndex: undefined,
   });
-  const quizzes = Array.from({ length: 180 }, (_, index) => ({
-    id: index + 1,
-    name: `Nhiều công ty có tuyên bố Tầm nhìn & Sứ mệnh được đóng khung độc đáo trong phòng họp quản lý.`,
-    image: `quiz_${index + 1}.jpg`,
-    description: '',
-    questions: Array.from({ length: 3 }, (__, qIndex) => ({
-      id: index * 3 + qIndex + 1,
-      question_name: `Thành thật mà nói, bạn nghĩ V&M từ ngữ truyền thống như vậy hữu ích như thế nào trong thời đại này?`,
-      quiz_id: index + 1,
-      question_type: (qIndex % 4) + 1,
-      image: qIndex % 2 === 0 ? `question_${qIndex + 1}.jpg` : '',
-      answers: [
-        {
-          id: 1,
-          answer_text:
-            'Tất cả các điều khoản I-V của tuyên bố Sứ mệnh Tầm nhìn này là chung chung. ',
-          is_correct: 0,
-          question_id: qIndex + 1,
-          is_answered: 0,
-        },
-        {
-          id: 2,
-          answer_text:
-            'V+M này có những từ hành động tốt “giảm”, “cải thiện”, “đạt được” “đem lại sự hài lòng” - nhưng không có mục tiêu rõ ràng',
-          is_correct: 0,
-          question_id: qIndex + 1,
-          is_answered: 0,
-        },
-        {
-          id: 3,
-          answer_text: 'V & M này ít nhất tuyên bố nhiều điều nó muốn đạt được.',
-          is_correct: 0,
-          question_id: qIndex + 1,
-          is_answered: 0,
-        },
-        {
-          id: 4,
-          answer_text:
-            'Tôi sẽ chỉ chọn V+M này nếu nó chứa các mục tiêu hữu hình, với các mốc thời gian rõ ràng; sự đầu tư cần thiết; cùng có lợi cho cả nhân viên và khách hàng',
-          is_correct: 0,
-          question_id: qIndex + 1,
-          is_answered: 0,
-        },
-      ],
-    })),
-  }));
+  const quizzes = ref<any[]>([]);
 
   const remainQuestionNumber = ref<number>(165);
 
@@ -149,17 +104,17 @@
     window.addEventListener('resize', updateHeight);
     setTimeout(updateHeight, 300);
     fetchQuestion();
-    emit('success', {
-      quizz: quizzes,
-      questionNumber: questionNumber.value,
-      currIndex: curIndex.value,
-    });
+    // emit('success', {
+    //   quizz: quizzes.value,
+    //   questionNumber: questionNumber.value,
+    //   currIndex: curIndex.value,
+    // });
   });
 
   watch(
     () => props.filter,
     (newFilter) => {
-      quizzes.forEach((quiz) => {
+      quizzes.value.forEach((quiz) => {
         quiz.questions.forEach((question) => {
           const selectedAnswers = newFilter.get(question.id) || [];
           question.answers.forEach((answer) => {
@@ -178,7 +133,14 @@
   async function fetchQuestion(params: any = {}) {
     try {
       const response: any = await getQuizz(params);
-      if (response) console.log(response);
+      if (response) {
+        quizzes.value = response;
+        emit('success', {
+          quizz: quizzes.value,
+          questionNumber: questionNumber.value,
+          currIndex: curIndex.value,
+        });
+      }
     } catch (error) {
       message.error('THAO TÁC THẤT BẠI');
     }
@@ -217,7 +179,7 @@
 
   function handlechangeQuizz(quizz) {
     if (quizz.id == 1) questionNumber.value = 'first';
-    else if (quizz.id == quizzes.length) questionNumber.value = 'last';
+    else if (quizz.id == quizzes.value.length) questionNumber.value = 'last';
     else questionNumber.value = '';
     emit('success', {
       quizz: quizzes,

@@ -8,8 +8,14 @@
     layout="vertical"
   >
     <div class="flex-1 flex flex-col h-full pt-5">
-      <FormItem label="Slug" name="slug">
+      <FormItem label="Mã Quiz" name="id">
+        <Input v-model:value="formData.id" placeholder="Vui lòng nhập" />
+      </FormItem>
+      <FormItem label="Tên Quiz" name="title">
         <Input v-model:value="formData.slug" placeholder="Vui lòng nhập" />
+      </FormItem>
+      <FormItem label="Người tạo" name="created_by">
+        <Input v-model:value="formData.created_by" placeholder="Vui lòng nhập" />
       </FormItem>
 
       <!-- <FormItem label="Mã máy" name="equipment_id">
@@ -48,7 +54,9 @@
 
   const formRef = ref();
   const formData = reactive<any>({
-    slug: null,
+    title: null,
+    id: null,
+    created_by: null,
   });
 
   onMounted(async () => {

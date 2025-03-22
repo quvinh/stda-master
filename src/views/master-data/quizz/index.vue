@@ -2,7 +2,7 @@
   <div class="flex pt-1 h-full">
     <!-- Sidebar query -->
     <div class="hidden lg:block w-[270px] mr-1">
-      <RoleSidebar :filter="filter" @success="handleSidebarFilter" />
+      <QuizSidebar :filter="filter" @success="handleSidebarFilter" />
     </div>
 
     <!-- Content -->
@@ -11,14 +11,31 @@
         class="h-full border-gray-300 border-1"
         :bodyStyle="{ padding: '5px!important', height: 'calc(100% - 60px) !important' }"
         size="small"
-        title="Quản lý chức vụ"
+        title="Quản lý quiz"
       >
         <template #extra>
           <Space>
-            <!-- <Button size="small" type="primary" @click="exportData">
-              <Icon icon="ant-design:file-excel-outlined" />
-              Xuất Excel
-            </Button> -->
+            <Button size="small" :href="`${BACKEND_URL}/excel/Quiz.xlsx`">
+              <Icon icon="ant-design:download-outlined" />
+              File upload mẫu
+            </Button>
+            <Upload
+              :action="`${BACKEND_URL}/api/v1/import-quizzes`"
+              name="file"
+              accept=".xlsx"
+              :showUploadList="false"
+              :loading="uploading"
+              :headers="{
+                Authorization: String(getToken() ?? ''),
+              }"
+              :data="{}"
+              @change="handleUploadChange"
+            >
+              <Button type="primary" size="small">
+                <Icon icon="ant-design:upload-outlined" />
+                Upload file
+              </Button>
+            </Upload>
             <Button size="small" type="primary" @click="handleCreate">
               <Icon icon="ant-design:plus-outlined" />
               Tạo mới
@@ -51,7 +68,7 @@
           </template>
         </BasicTable>
       </Card>
-      <RoleModal
+      <QuizModal
         :width="800"
         :draggable="false"
         @register="registerModal"
@@ -67,21 +84,24 @@
   import { BasicTable, TableAction, useTable } from '@/components/Table';
   import { pageSizeOptions } from '@/enums/paginationEnum';
   import { IPagination } from '@/store/types/pagination';
-  import { Button, Card, message, Space } from 'ant-design-vue';
+  import { Button, Card, message, Space, Upload } from 'ant-design-vue';
   import { PaginationProps } from 'ant-design-vue/lib';
   import { onMounted, ref } from 'vue';
   import { getActionColumn, getBasicColumns } from './components/tableData';
-  import { searchRoleApi, deleteRoleApi } from '@/api/sys/role';
-  import RoleModal from './components/RoleModal.vue';
-  import RoleSidebar from './components/RoleSidebar.vue';
+  import { getQuizz } from '@/api/sys/quizz';
+  import QuizModal from './components/QuizModal.vue';
+  import QuizSidebar from './components/QuizSidebar.vue';
+  import { getToken } from '@/utils/auth';
 
   const users = ref<any[]>([]);
   const loading = ref<boolean>(false);
 
   const page = ref<number>(1);
   const pageSize = ref<number>(25);
+  const uploading = ref<boolean>(false);
   const totalPage = ref<number>(0);
   const filter = ref<any>({});
+  const BACKEND_URL = 'http://127.0.0.1:8000';
 
   const paginationProp = ref<PaginationProps | any>({
     showSizeChanger: true,
@@ -126,9 +146,10 @@
   async function fetchData(param: any = {}) {
     try {
       loading.value = true;
-      const response: any = await searchRoleApi(param);
+      const response: any = await getQuizz(param);
       // Set data
-      users.value = response.data ?? [];
+      users.value = response ?? [];
+      console.log(users.value);
       // Set pagination
       const pagination: IPagination = response?.pagination ?? null;
       let totalRecord = users.value.length;
@@ -167,14 +188,37 @@
    * @description action update
    */
   async function handleDelete(record: Recordable) {
+    // try {
+    //   const result = await deleteRoleApi(record?.id);
+    //   if (result) {
+    //     fetchData();
+    //     message.success('Thao tác thành công');
+    //   } else message.error('Thao tác thất bại');
+    // } catch (error) {
+    //   message.error(error.message);
+    // }
+  }
+
+  function handleUploadChange(info: any) {
     try {
-      const result = await deleteRoleApi(record?.id);
-      if (result) {
-        fetchData();
-        message.success('Thao tác thành công');
-      } else message.error('Thao tác thất bại');
+      if (info.file.status === 'uploading') {
+        uploading.value = true;
+      } else {
+        if (info.file.status === 'done') {
+          if (!info.file?.response?.success)
+            throw new Error(
+              info.file?.response?.message ?? `${info.file.name} - Thực hiện thất bại`,
+            );
+          message.success(`${info.file.name} - Upload thành công`);
+          fetchCustomer();
+        } else if (info.file.status === 'error') {
+          message.error(info.file?.response?.message ?? `${info.file.name} - Thực hiện thất bại`);
+        }
+      }
     } catch (error) {
       message.error(error.message);
+    } finally {
+      uploading.value = false;
     }
   }
 

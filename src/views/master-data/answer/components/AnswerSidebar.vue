@@ -8,23 +8,18 @@
     layout="vertical"
   >
     <div class="flex-1 flex flex-col h-full pt-5">
-      <FormItem label="Slug" name="slug">
-        <Input v-model:value="formData.slug" placeholder="Vui lòng nhập" />
+      <FormItem label="Mã câu hỏi" name="id">
+        <Input v-model:value="formData.id" placeholder="Vui lòng nhập" />
       </FormItem>
-
-      <!-- <FormItem label="Mã máy" name="equipment_id">
-        <Select
-          :options="equipments"
-          placeholder="Vui lòng chọn"
-          v-model:value="formData.equipment_id"
-        />
-      </FormItem> -->
-
-      <!-- <div class="flex-1 flex flex-col overflow-y-auto section-search-input pr-1">
-        <FormItem label="Thời gian" name="dates">
-          <RangePicker v-model:value="formData.dates" />
-        </FormItem>
-      </div> -->
+      <FormItem label="Tên câu hỏi" name="question_text">
+        <Input v-model:value="formData.question_text" placeholder="Vui lòng nhập" />
+      </FormItem>
+      <FormItem label="Mã Quiz" name="quiz_id">
+        <Select :options="[]" v-model:value="formData.quiz_id" placeholder="Vui lòng nhập" />
+      </FormItem>
+      <FormItem label="Người tạo" name="created_by">
+        <Input v-model:value="formData.created_by" placeholder="Vui lòng nhập" />
+      </FormItem>
     </div>
 
     <div
@@ -41,14 +36,17 @@
 
 <script setup lang="ts">
   import Icon from '@/components/Icon/Icon.vue';
-  import { Button, Form, FormItem, Input } from 'ant-design-vue';
+  import { Button, Form, FormItem, Input, Select } from 'ant-design-vue';
   import { onUnmounted, onMounted, unref, ref, reactive } from 'vue';
 
   const emit = defineEmits(['success']);
 
   const formRef = ref();
   const formData = reactive<any>({
-    slug: null,
+    id: null,
+    question_text: null,
+    quiz_id: null,
+    created_by: null,
   });
 
   onMounted(async () => {

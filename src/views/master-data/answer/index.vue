@@ -2,7 +2,7 @@
   <div class="flex pt-1 h-full">
     <!-- Sidebar query -->
     <div class="hidden lg:block w-[270px] mr-1">
-      <RoleSidebar :filter="filter" @success="handleSidebarFilter" />
+      <AnswerSidebar :filter="filter" @success="handleSidebarFilter" />
     </div>
 
     <!-- Content -->
@@ -51,7 +51,7 @@
           </template>
         </BasicTable>
       </Card>
-      <RoleModal
+      <AnswerModal
         :width="800"
         :draggable="false"
         @register="registerModal"
@@ -71,9 +71,9 @@
   import { PaginationProps } from 'ant-design-vue/lib';
   import { onMounted, ref } from 'vue';
   import { getActionColumn, getBasicColumns } from './components/tableData';
-  import { searchRoleApi, deleteRoleApi } from '@/api/sys/role';
-  import RoleModal from './components/RoleModal.vue';
-  import RoleSidebar from './components/RoleSidebar.vue';
+  import { getAnswer } from '@/api/sys/quizz';
+  import AnswerSidebar from './components/AnswerSidebar.vue';
+  import AnswerModal from './components/AnswerModal.vue';
 
   const users = ref<any[]>([]);
   const loading = ref<boolean>(false);
@@ -126,9 +126,10 @@
   async function fetchData(param: any = {}) {
     try {
       loading.value = true;
-      const response: any = await searchRoleApi(param);
+      const response: any = await getAnswer(param);
       // Set data
-      users.value = response.data ?? [];
+      users.value = response ?? [];
+      console.log(users.value);
       // Set pagination
       const pagination: IPagination = response?.pagination ?? null;
       let totalRecord = users.value.length;
@@ -168,11 +169,11 @@
    */
   async function handleDelete(record: Recordable) {
     try {
-      const result = await deleteRoleApi(record?.id);
-      if (result) {
-        fetchData();
-        message.success('Thao tác thành công');
-      } else message.error('Thao tác thất bại');
+      // const result = await deleteRoleApi(record?.id);
+      // if (result) {
+      //   fetchData();
+      //   message.success('Thao tác thành công');
+      // } else message.error('Thao tác thất bại');
     } catch (error) {
       message.error(error.message);
     }

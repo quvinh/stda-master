@@ -4,22 +4,30 @@ import dayjs from 'dayjs';
 export function getBasicColumns(): BasicColumn[] {
   return [
     {
-      title: 'Slug',
-      dataIndex: 'slug',
+      title: 'Tên câu hỏi',
+      dataIndex: 'question_text',
       align: 'center',
       width: 100,
     },
     {
-      title: 'Tên chức vụ',
-      dataIndex: 'name',
+      title: 'Tên Quiz',
+      dataIndex: 'quiz_name',
       align: 'center',
       width: 120,
+      customRender: ({ record }) => record?.quiz?.title,
     },
     {
-      title: 'Mô tả',
-      dataIndex: 'description',
+      title: 'Loại câu hỏi',
+      dataIndex: 'question_type',
       align: 'center',
       width: 150,
+    },
+    {
+      title: 'Hình ảnh',
+      dataIndex: 'image',
+      align: 'center',
+      width: 150,
+      customRender: ({ value }) => value,
     },
     {
       title: 'Ngày tạo',

@@ -4,22 +4,25 @@ import dayjs from 'dayjs';
 export function getBasicColumns(): BasicColumn[] {
   return [
     {
-      title: 'Slug',
-      dataIndex: 'slug',
+      title: 'Tên Quiz',
+      dataIndex: 'title',
       align: 'center',
       width: 100,
-    },
-    {
-      title: 'Tên chức vụ',
-      dataIndex: 'name',
-      align: 'center',
-      width: 120,
+      customRender: ({ value }) => value,
     },
     {
       title: 'Mô tả',
       dataIndex: 'description',
       align: 'center',
       width: 150,
+      customRender: ({ value }) => value,
+    },
+    {
+      title: 'Người tạo',
+      dataIndex: 'created_by',
+      align: 'center',
+      width: 120,
+      customRender: ({ record }) => record?.user?.name,
     },
     {
       title: 'Ngày tạo',
