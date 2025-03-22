@@ -17,8 +17,6 @@
               :class="`${props.filter.has(index) && props.filter.get(index)?.length === quizzes[index].questions.length ? 'bg-gray-300' : ''} hover:bg-orange-300 border-1 border-gray-300 rounded m-[2px] h-[50px] flex justify-center items-center cursor-pointer relative`"
             >
               <div class="font-semibold select-none">{{ index + 1 }}</div>
-              <!-- Thêm góc cờ đỏ -->
-              <!-- <div v-if="isFlagged(index)" class="flag-corner"></div> -->
             </div>
           </Col>
         </Row>
@@ -43,9 +41,7 @@
             >
           </div>
           <div class="w-1.25/4 border-l-1 border-l-gray-300 flex justify-center items-center">
-            <span class="font-bold text-xl text-green-500">{{
-              questionNumber - remainQuestionNumber
-            }}</span>
+            <span class="font-bold text-xl text-green-500">{{ 0 }}</span>
           </div>
         </div>
 
@@ -134,6 +130,7 @@
     try {
       const response: any = await getQuizz(params);
       if (response) {
+        console.log(response);
         quizzes.value = response;
         emit('success', {
           quizz: quizzes.value,
@@ -182,7 +179,7 @@
     else if (quizz.id == quizzes.value.length) questionNumber.value = 'last';
     else questionNumber.value = '';
     emit('success', {
-      quizz: quizzes,
+      quizz: quizzes.value,
       questionNumber: questionNumber.value,
       currIndex: (curIndex.value = quizz.id - 1),
     });

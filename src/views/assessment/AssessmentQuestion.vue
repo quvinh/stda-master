@@ -28,16 +28,18 @@
 
               <!-- Nội dung có thể cuộn riêng -->
               <div class="md:flex-1 overflow-auto md:p-2 p-5">
-                <h2 class="mb-4">{{ currQuizz.name }}</h2>
-                <p>Các từ rất rộng và lỏng lẻo không có mục tiêu hữu hình để đạt được</p>
-                <p>Không có mốc thời gian rõ ràng cho mục tiêu cụ thể</p>
+                <h2 class="mb-4">{{ currQuizz.title }}</h2>
+                <p v-for="text in currQuizz.description.split('/')" :key="text">
+                  {{ text }}
+                </p>
+                <!-- <p>Không có mốc thời gian rõ ràng cho mục tiêu cụ thể</p>
                 <p
                   >Ban quản lý không tiết lộ khoản đầu tư nào sẽ được thực hiện, doanh thu cần đạt
                   được và lợi ích cho các bên liên quan</p
                 >
                 <p>Nó thiếu các chi tiết định lượng và định tính </p>
                 <p>“Góp phần vào phúc lợi của Trái đất” hoàn toàn không cụ thể để đạt được ESG</p>
-                <p>Nó thiếu các chi tiết định lượng và định tính </p>
+                <p>Nó thiếu các chi tiết định lượng và định tính </p> -->
               </div>
             </Col>
 
@@ -118,7 +120,7 @@
     listQuizzes.value = values.quizz;
     selectedReason.value = [];
     currIndex.value = values.currIndex;
-    currQuizz.value = listQuizzes.value[currIndex.value];
+    currQuizz.value = values.quizz[currIndex.value];
     questionNumber.value = values.questionNumber;
   }
 
