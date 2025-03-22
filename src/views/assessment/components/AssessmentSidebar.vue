@@ -83,7 +83,7 @@
   import Icon from '@/components/Icon/Icon.vue';
   import { formatNumber } from '@/utils/helper/tsxHelper';
   import { Button, Col, Divider, Form, FormItem, message, Row } from 'ant-design-vue';
-  import { onUnmounted, onMounted, unref, ref, watch } from 'vue';
+  import { onUnmounted, onMounted, unref, ref, watch, computed } from 'vue';
   import { number } from 'vue-types';
 
   type DataMap = Map<number, Map<number, number>>;
@@ -202,15 +202,13 @@
     //   totalScores.set(outerKey, new Map([[outerKey, sum]]));
     // });
 
-    const dataArray = Array.from(data.value.entries()).map(([quiz_id, innerMap]) => ({
+    const dataArray = Array.from(data.value.entries()).map(([quiz_id, answersMap]) => ({
       quiz_id,
-      scores: Array.from(innerMap.entries()).map(([answer_id, answers]) => ({
+      answers: Array.from(answersMap.entries()).map(([answer_id, score]) => ({
         answer_id,
-        answers,
+        score,
       })),
     }));
-
-    console.log(dataArray);
 
     try {
       const response: any = await complete(dataArray);
