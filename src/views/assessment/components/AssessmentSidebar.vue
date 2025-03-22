@@ -220,10 +220,8 @@
     }
 
     try {
-      for (const quiz_id of quizIds) {
-        const response: any = await submitQuiz({ quiz_id });
-        if (response) message.success(`Bài thi ${quiz_id} đã được nộp thành công`);
-      }
+      await Promise.all(quizIds.map((quiz_id) => submitQuiz({ quiz_id })));
+      message.success('Tất cả bài thi đã được nộp thành công');
     } catch (error) {
       message.error('Nộp bài thi thất bại');
     }
