@@ -85,6 +85,7 @@
   import { Button, Col, Divider, Form, FormItem, message, Row } from 'ant-design-vue';
   import { onUnmounted, onMounted, unref, ref, watch } from 'vue';
   import { number } from 'vue-types';
+  import { submitQuiz } from '@/api/sys/quizz';
 
   type DataMap = Map<number, Map<number, number>>;
   type AnyArrayMap = Map<number, any[]>;
@@ -191,32 +192,40 @@
     });
   }
 
+  // async function handleComplete() {
+  //   const dataArray = Array.from(data.value.entries()).map(([quiz_id, innerMap]) => ({
+  //     quiz_id,
+  //     answers: Array.from(innerMap.entries()).map(([question_id, answer_id]) => ({
+  //       question_id,
+  //       answer_id,
+  //     })),
+  //   }));
+
+  //   console.log(dataArray);
+
+  //   try {
+  //     const response: any = await complete(dataArray);
+  //     if (response) message.success('Đã hoàn thành bài thi');
+  //   } catch (error) {
+  //     message.error('Thao tác thất bại');
+  //   }
+  // }
+
   async function handleComplete() {
-    // const totalScores = new Map<number, Map<number, number>>();
-    // console.log(data.value);
-    // data.value.forEach((innerMap, outerKey) => {
-    //   let sum = 0;
-    //   innerMap.forEach((key, score) => {
-    //     sum += score;
-    //   });
-    //   totalScores.set(outerKey, new Map([[outerKey, sum]]));
-    // });
+    const quizIds = Array.from(data.value.keys());
 
-    const dataArray = Array.from(data.value.entries()).map(([quiz_id, innerMap]) => ({
-      quiz_id,
-      scores: Array.from(innerMap.entries()).map(([answer_id, answers]) => ({
-        answer_id,
-        answers,
-      })),
-    }));
-
-    console.log(dataArray);
+    if (quizIds.length === 0) {
+      message.warning('Không có bài thi nào để nộp!');
+      return;
+    }
 
     try {
-      const response: any = await complete(dataArray);
-      if (response) message.success('Đã hoàn thành bài thi');
+      for (const quiz_id of quizIds) {
+        const response: any = await submitQuiz({ quiz_id });
+        if (response) message.success(`Bài thi ${quiz_id} đã được nộp thành công`);
+      }
     } catch (error) {
-      message.error('Thao tác thất bại');
+      message.error('Nộp bài thi thất bại');
     }
   }
 </script>

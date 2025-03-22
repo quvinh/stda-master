@@ -9,6 +9,8 @@ enum Api {
   Question = '/questions',
   Answer = '/answers',
   Complete = '/quiz-attempts',
+  SaveAnswer = '/quiz/save-answer',
+  SubmitQuiz = '/quiz/submit',
 }
 
 export const getQuizz = (params: any = {}) => {
@@ -47,6 +49,26 @@ export const complete = (params: any = {}) => {
     headers: getDefaultAxiosOption(token),
     url: Api.Complete,
     params: params,
+  };
+  return defHttp.post<any>(config);
+};
+
+export const saveAnswer = (data: { quiz_id: number; question_id: number; answer_id: number }) => {
+  const token: any = getToken();
+  const config: AxiosRequestConfig<any> = {
+    headers: getDefaultAxiosOption(token),
+    url: Api.SaveAnswer,
+    data: data,
+  };
+  return defHttp.post<any>(config);
+};
+
+export const submitQuiz = (data: { quiz_id: number }) => {
+  const token: any = getToken();
+  const config: AxiosRequestConfig<any> = {
+    headers: getDefaultAxiosOption(token),
+    url: Api.SubmitQuiz,
+    data: data,
   };
   return defHttp.post<any>(config);
 };
