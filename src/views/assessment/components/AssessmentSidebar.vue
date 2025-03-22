@@ -84,6 +84,7 @@
   import { formatNumber } from '@/utils/helper/tsxHelper';
   import { Button, Col, Divider, Form, FormItem, message, Row } from 'ant-design-vue';
   import { onUnmounted, onMounted, unref, ref, watch } from 'vue';
+  import { number } from 'vue-types';
 
   type DataMap = Map<number, Map<number, number>>;
   type AnyArrayMap = Map<number, any[]>;
@@ -136,7 +137,6 @@
     try {
       const response: any = await getQuizz(params);
       if (response) {
-        console.log(response);
         quizzes.value = response;
         emit('success', {
           quizz: quizzes.value,
@@ -192,20 +192,26 @@
   }
 
   async function handleComplete() {
-    const totalScores = new Map<number, number>();
+    // const totalScores = new Map<number, Map<number, number>>();
+    // console.log(data.value);
+    // data.value.forEach((innerMap, outerKey) => {
+    //   let sum = 0;
+    //   innerMap.forEach((key, score) => {
+    //     sum += score;
+    //   });
+    //   totalScores.set(outerKey, new Map([[outerKey, sum]]));
+    // });
 
-    data.value.forEach((innerMap, outerKey) => {
-      let sum = 0;
-      innerMap.forEach((score) => {
-        sum += score;
-      });
-      totalScores.set(outerKey, sum);
-    });
-
-    const dataArray = Array.from(totalScores.entries()).map(([id, score]) => ({
-      id,
-      score,
+    const dataArray = Array.from(data.value.entries()).map(([quiz_id, innerMap]) => ({
+      quiz_id,
+      scores: Array.from(innerMap.entries()).map(([answer_id, answers]) => ({
+        answer_id,
+        answers,
+      })),
     }));
+
+    console.log(dataArray);
+
     try {
       const response: any = await complete(dataArray);
       if (response) message.success('Đã hoàn thành bài thi');
