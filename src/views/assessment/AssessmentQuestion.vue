@@ -2,11 +2,7 @@
   <div class="flex pt-1 h-full">
     <!-- Sidebar query -->
     <div class="hidden lg:block w-[270px] mr-1">
-      <AssessmentSidebar
-        :filter="filter"
-        :selectedReason="selectedReason"
-        @success="handleSidebarFilter"
-      />
+      <AssessmentSidebar :filter="filter" @success="handleSidebarFilter" />
     </div>
 
     <!-- Content -->
@@ -95,15 +91,18 @@
   import { reactive, ref } from 'vue';
   import AssessmentSidebar from './components/AssessmentSidebar.vue';
   import Picture1 from '@/assets/images/Picture1.png';
-  import { Button, Card, Col, Radio, RadioGroup, Row } from 'ant-design-vue';
+  import { Button, Card, Col, message, Radio, RadioGroup, Row } from 'ant-design-vue';
   import Icon from '@/components/Icon/Icon.vue';
-  import { saveAnswer } from '@/api/sys/quizz';
+  import { answeredQuestions, saveAnswer } from '@/api/sys/quizz';
 
   const listQuizzes = ref<any[]>([]);
   const filter = ref<{ currIdx: number }>({ currIdx: 0 });
   const currQuizz = ref<any>({});
   const currIndex = ref(0);
-  const selectedReason = ref<{ [key: number]: any }>({});
+  const selectedReason = ref<{ [key: number]: any }>({
+    0: 1, // Câu hỏi đầu tiên chưa chọn gì
+    1: 2, // Câu hỏi thứ hai đã chọn đáp án có ID là 5
+  });
   const questionNumber = ref<'first' | 'last' | ''>('first');
 
   const radioStyle = reactive({
@@ -115,9 +114,24 @@
     selectedReason.value = [];
     currIndex.value = values.currIndex;
     currQuizz.value = values.quizz[currIndex.value];
+    fetchAnsweredQuestions();
     filter.value.currIdx = currIndex.value;
     questionNumber.value = values.questionNumber;
   }
+
+  async function fetchAnsweredQuestions() {
+    try {
+      const response: any = await answeredQuestions({ quiz_id: currQuizz.value.id });
+      if (response) {
+        response.forEach((id, index) => {
+          selectedReason.value[index] = id;
+        });
+      }
+    } catch (error) {
+      message.error('THAO TÁC THẤT BẠI');
+    }
+  }
+
   function handlePrevQuizz() {
     selectedReason.value = [];
     currIndex.value--;
@@ -138,12 +152,14 @@
 
   const handleChange = async (index: number, aIndex: number) => {
     const score = currQuizz.value.questions[index].answers[aIndex].score; // điểm của câu hỏi thuộc quiz
+    const answer_id = currQuizz.value.questions[index].answers[aIndex].id;
     const question_id = currQuizz.value.questions[index].id; // question_id
     try {
       await saveAnswer({
         quiz_id: currQuizz.value.id,
         question_id: question_id,
         score: score,
+        answer_id: answer_id,
       });
     } catch (error) {
       console.error('Lưu câu trả lời thất bại', error);
