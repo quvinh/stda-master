@@ -6,14 +6,14 @@ export function getBasicColumns(): BasicColumn[] {
     {
       title: 'Tên câu hỏi',
       dataIndex: 'question_text',
-      align: 'center',
-      width: 100,
+      align: 'left',
+      width: 150,
     },
     {
       title: 'Tên Quiz',
       dataIndex: 'quiz_name',
-      align: 'center',
-      width: 120,
+      align: 'left',
+      width: 200,
       customRender: ({ record }) => record?.quiz?.title,
     },
     {

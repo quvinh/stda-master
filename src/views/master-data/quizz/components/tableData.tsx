@@ -8,14 +8,12 @@ export function getBasicColumns(): BasicColumn[] {
       dataIndex: 'title',
       align: 'center',
       width: 100,
-      customRender: ({ value }) => value,
     },
     {
       title: 'Mô tả',
       dataIndex: 'description',
       align: 'center',
       width: 150,
-      customRender: ({ value }) => value,
     },
     {
       title: 'Người tạo',

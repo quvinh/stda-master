@@ -6,22 +6,21 @@ export function getBasicColumns(): BasicColumn[] {
     {
       title: 'Tên câu trả lời',
       dataIndex: 'answer_text',
-      align: 'center',
+      align: 'left',
       width: 120,
-      customRender: ({ value }) => value,
     },
     {
       title: 'Tên Quiz',
       dataIndex: 'quiz_text',
-      align: 'center',
-      width: 120,
+      align: 'left',
+      width: 150,
       customRender: ({ record }) => record?.question?.quiz?.title,
     },
     {
       title: 'Tên câu hỏi',
       dataIndex: 'question_text',
-      align: 'center',
-      width: 120,
+      align: 'left',
+      width: 150,
       customRender: ({ record }) => record?.question?.question_text,
     },
     {
