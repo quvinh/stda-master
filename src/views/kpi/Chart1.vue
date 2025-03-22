@@ -1,114 +1,67 @@
 <template>
-  <div class="w-full h-full" ref="chartRef" :style="{ width, height }"></div>
+  <div id="chart" style="width: 100%; height: 350px"></div>
+  <!-- Tăng chiều cao -->
 </template>
 
-<script lang="ts" setup>
-  import { ref } from 'vue';
+<script setup>
   import * as echarts from 'echarts';
+  import { onMounted } from 'vue';
 
-  const props = defineProps({
-    data: {
-      type: Array as PropType<
-        Array<{
-          date: string;
-          processes: Array<{
-            process_id: string;
-            errors: number;
-            rate: number;
-          }>;
-        }>
-      >,
-      default: () => [],
-    },
-    loading: Boolean,
-    width: {
-      type: String as PropType<string>,
-      default: '100%',
-    },
-    height: {
-      type: String as PropType<string>,
-      default: '100%',
-    },
-  });
-  const chartRef = ref<HTMLDivElement | null>(null);
+  onMounted(() => {
+    const chartDom = document.getElementById('chart');
+    if (chartDom) {
+      const myChart = echarts.init(chartDom);
 
-  type EChartsOption = echarts.EChartsOption;
-
-  var chartDom = document.getElementById('main')!;
-  var myChart = echarts.init(chartDom);
-  var option: EChartsOption;
-
-  const data1: number[] = [];
-  for (let i = 0; i < 5; ++i) {
-    data1.push(Math.round(Math.random() * 200));
-  }
-
-  option = {
-    xAxis: {
-      max: 'dataMax',
-    },
-    yAxis: {
-      type: 'category',
-      data: ['A', 'B', 'C', 'D', 'E'],
-      inverse: true,
-      animationDuration: 300,
-      animationDurationUpdate: 300,
-      max: 2, // only the largest 3 bars will be displayed
-    },
-    series: [
-      {
-        realtimeSort: true,
-        name: 'X',
-        type: 'bar',
-        data: data1,
-        label: {
-          show: true,
-          position: 'right',
-          valueAnimation: true,
+      const option = {
+        title: {
+          left: 'center',
         },
-      },
-    ],
-    legend: {
-      show: true,
-    },
-    animationDuration: 0,
-    animationDurationUpdate: 3000,
-    animationEasing: 'linear',
-    animationEasingUpdate: 'linear',
-  };
+        tooltip: {
+          trigger: 'axis',
+        },
+        grid: {
+          left: '20%', // Lề trái để không bị cắt chữ
+          right: '10%',
+          top: '5%', // 🟢 Đẩy biểu đồ lên trên
+          bottom: '30%',
+        },
+        xAxis: {
+          type: 'value',
+          // name: 'Giá trị',
+        },
+        yAxis: {
+          type: 'category',
+          data: [
+            'AVERAGE OF ALL DIMENSIONS',
+            'D1 STRATEGY & LEADERSHIP',
+            'D2 PEOPLE & CULTURE',
+            'D3 CUSTOMERS',
+            'D4 OPERATIONS',
+            'D5 PRODUCTION',
+            'D6 DIGITAL TECHNOLOGY & SECURITY',
+            'D7 SUSTAINABILITY & INCLUSION',
+          ],
+          axisLabel: {
+            interval: 0, // Hiển thị tất cả nhãn
+            fontSize: 10, // Giảm kích thước chữ
+            overflow: 'break', // Bọc dòng nếu quá dài
+          },
+        },
+        series: [
+          {
+            name: 'Dữ liệu',
+            type: 'bar',
+            data: [10, 20, 30, 40, 50, 10, 30, 20],
+            barWidth: 20, // Giảm độ rộng cột
+            // barCategoryGap: '10%',
+            itemStyle: {
+              color: '#409EFF',
+            },
+          },
+        ],
+      };
 
-  function run() {
-    for (var i = 0; i < data1.length; ++i) {
-      if (Math.random() > 0.9) {
-        data1[i] += Math.round(Math.random() * 2000);
-      } else {
-        data1[i] += Math.round(Math.random() * 200);
-      }
+      myChart.setOption(option);
     }
-    myChart.setOption<echarts.EChartsOption>({
-      series: [
-        {
-          type: 'bar',
-          data1,
-        },
-      ],
-    });
-  }
-
-  setTimeout(function () {
-    run();
-  }, 0);
-  setInterval(function () {
-    run();
-  }, 3000);
-
-  option && myChart.setOption(option);
+  });
 </script>
-
-<!-- <style scoped>
-  .title {
-    font-family: 'Arial, sans-serif';
-    font-size: 16;
-    font-weight: 'bold';
-  }
-</style> -->

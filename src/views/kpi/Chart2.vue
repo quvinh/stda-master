@@ -1,109 +1,48 @@
 <template>
-  <div class="w-full h-full" ref="chartRef" :style="{ width, height }"></div>
+  <div id="radarChart" style="width: 100%; height: 300px"></div>
 </template>
 
-<script lang="ts" setup>
-  import { Ref, ref, watch, PropType } from 'vue';
-  import { useECharts } from '@/hooks/web/useECharts';
+<script setup>
+  import * as echarts from 'echarts';
+  import { onMounted } from 'vue';
 
-  const props = defineProps({
-    data: {
-      type: Array as PropType<
-        Array<{
-          process_id: string;
-          errors: number;
-          rate: number;
-        }>
-      >,
-      default: () => [],
-    },
-    loading: Boolean,
-    width: {
-      type: String as PropType<string>,
-      default: '100%',
-    },
-    height: {
-      type: String as PropType<string>,
-      default: '100%',
-    },
-  });
+  onMounted(() => {
+    const chartDom = document.getElementById('radarChart');
+    if (chartDom) {
+      const myChart = echarts.init(chartDom);
 
-  const chartRef = ref<HTMLDivElement | null>(null);
-  const { setOptions } = useECharts(chartRef as Ref<HTMLDivElement>);
-
-  watch(
-    () => props.data,
-    (newData) => {
-      if (props.loading || !newData.length) {
-        return;
-      }
-
-      const chartData = newData.map((item) => ({
-        value: item.errors,
-        name: item.process_id,
-      }));
-
-      const legendData = newData.map((item) => item.process_id);
-
-      setOptions({
-        // title: {
-        //   text: 'Tỷ lệ lỗi',
-        //   left: 'center',
-        //   textStyle: {
-        //     fontFamily: 'Arial, sans-serif',
-        //     fontSize: 16,
-        //     fontWeight: 'bold',
-        //   },
-        // },
-        tooltip: {
-          trigger: 'item',
-          formatter: '{a} <br/>{b} : {c} ({d}%)',
-          textStyle: {
-            fontFamily: 'Arial, sans-serif',
-          },
+      const option = {
+        title: {
+          text: 'Biểu đồ Radar',
+          left: 'center',
         },
-        legend: {
-          top: 5,
-          left: 'left',
-          data: legendData,
-          textStyle: {
-            fontFamily: 'Arial, sans-serif',
-          },
-          itemWidth: 10,
-          itemHeight: 10,
+        tooltip: {},
+        radar: {
+          indicator: [
+            { name: 'Tốc độ', max: 100 },
+            { name: 'Sức mạnh', max: 100 },
+            { name: 'Phòng thủ', max: 100 },
+            { name: 'Nhanh nhẹn', max: 100 },
+            { name: 'Trí tuệ', max: 100 },
+          ],
+          shape: 'polygon', // Hình mạng nhện
         },
         series: [
           {
-            name: 'Biểu đồ tỷ lệ lỗi',
-            type: 'pie',
-            radius: '80%',
-            center: ['50%', '51%', '60%', '50%'],
-            selectedMode: 'single',
-            data: chartData,
-            top: 0,
-            label: {
-              show: true,
-              position: 'inside',
-              distance: 5,
-              formatter: '{b}',
-              fontFamily: 'Arial, sans-serif',
-            },
-            labelLine: {
-              show: true,
-              length: 5,
-              length2: 5,
-            },
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)',
+            name: 'Chỉ số',
+            type: 'radar',
+            data: [
+              {
+                value: [80, 90, 70, 85, 95], // Dữ liệu tương ứng với từng chỉ số
+                name: 'Nhân vật A',
+                areaStyle: { color: 'rgba(255, 99, 132, 0.5)' },
               },
-            },
+            ],
           },
         ],
-      });
-    },
-    { immediate: true },
-  );
+      };
+
+      myChart.setOption(option);
+    }
+  });
 </script>

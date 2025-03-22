@@ -1,31 +1,40 @@
 <template>
-  <div class="flex flex-col">
-    <div class="h-3/4 flex flex-row gap-1 mb-1 chart">
-      <Card
-        size="small"
-        title="Tỷ lệ lỗi"
-        class="w-1/2 border-gray-300 border-1"
-        :bodyStyle="{ padding: '0px!important', height: '80%' }"
-        :headStyle="{ minHeight: '45px' }"
-      >
-        <Chart1 :data="lineChartData" />
-      </Card>
-      <Card
-        size="small"
-        title="Tỷ lệ lỗi"
-        class="w-1/2 border-gray-300 border-1"
-        :headStyle="{ minHeight: '45px' }"
-        :bodyStyle="{ padding: '0px!important', height: '80%' }"
-      >
-        <Chart2 :data="chartData" />
-      </Card>
-    </div>
-    <!-- <Card
-      class="h-1/2 border-gray-300 border-1"
-      :bodyStyle="{ padding: '5px!important', height: 'calc(100% - 60px) !important' }"
+  <div class="charts-container">
+    <Card
+      class="full-height-card border border-gray-300"
+      :bodyStyle="{ padding: '8px', height: '100%' }"
       size="small"
-      title="Lịch sử PQC"
-    /> -->
+      title="Tỷ lệ hoàn thành kế hoạch"
+    >
+      <Chart1 />
+    </Card>
+
+    <Card
+      class="full-height-card border border-gray-300"
+      :bodyStyle="{ padding: '8px', height: '100%' }"
+      size="small"
+      title="Hiệu suất thiết bị"
+    >
+      <Chart2 />
+    </Card>
+
+    <Card
+      class="full-height-card border border-gray-300"
+      :bodyStyle="{ padding: '8px', height: '100%' }"
+      size="small"
+      title="Tỷ lệ đạt chất lượng OQC"
+    >
+      <Chart3 />
+    </Card>
+
+    <Card
+      class="full-height-card border border-gray-300"
+      :bodyStyle="{ padding: '8px', height: '100%' }"
+      size="small"
+      title="Tỷ lệ lỗi công đoạn"
+    >
+      <Chart2 />
+    </Card>
   </div>
 </template>
 
@@ -41,6 +50,7 @@
   import { getBasicColumns } from '../assessment/components/tableData';
   import Chart1 from './Chart1.vue';
   import Chart2 from './Chart2.vue';
+  import Chart3 from './Chart3.vue';
 
   const chartData = ref([]);
   const lineChartData = ref([]);
@@ -185,13 +195,18 @@
   // }
 </script>
 <style scoped>
-  .table-production {
-    margin-top: 10px;
-    margin-right: 4px;
-    margin-left: 4px;
+  .charts-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 cột */
+    grid-template-rows: repeat(2, 1fr); /* 2 hàng */
+    height: 100vh; /* Chiều cao full màn hình */
+
+    /* padding: 8px; */
   }
 
-  .ant-card .ant-card-body {
-    padding: 0 !important;
+  .full-height-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 </style>

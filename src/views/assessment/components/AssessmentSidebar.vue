@@ -191,25 +191,6 @@
     });
   }
 
-  // async function handleComplete() {
-  //   const dataArray = Array.from(data.value.entries()).map(([quiz_id, innerMap]) => ({
-  //     quiz_id,
-  //     answers: Array.from(innerMap.entries()).map(([question_id, answer_id]) => ({
-  //       question_id,
-  //       answer_id,
-  //     })),
-  //   }));
-
-  //   console.log(dataArray);
-
-  //   try {
-  //     const response: any = await complete(dataArray);
-  //     if (response) message.success('Đã hoàn thành bài thi');
-  //   } catch (error) {
-  //     message.error('Thao tác thất bại');
-  //   }
-  // }
-
   async function handleComplete() {
     const quizIds = Array.from(data.value.keys());
 
