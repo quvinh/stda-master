@@ -11,7 +11,7 @@
         class="h-full border-gray-300 border-1"
         :bodyStyle="{ padding: '5px!important', height: 'calc(100% - 60px) !important' }"
         size="small"
-        title="Quản lý chức vụ"
+        title="Quản lý câu trả lời"
       >
         <template #extra>
           <Space>
