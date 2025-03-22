@@ -48,11 +48,11 @@
               <div class="md:flex-1 md:overflow-auto p-2">
                 <Card
                   bordered
-                  title="Thành thật mà nói, bạn nghĩ V&M từ ngữ truyền thống như vậy hữu ích như thế nào trong thời đại này?"
                   class="w-full mb-2"
                   v-for="(value, index) in currQuizz.questions"
                   :key="index"
                 >
+                  <p class="font-bold text-base">{{ value.question_text }}</p>
                   <RadioGroup class="radio-group" v-model:value="selectedReason[index]">
                     <Radio
                       v-for="(option, index) in value.answers"
