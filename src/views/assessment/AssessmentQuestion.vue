@@ -32,14 +32,6 @@
                 <p v-for="text in currQuizz.description.split('/')" :key="text">
                   {{ text }}
                 </p>
-                <!-- <p>Không có mốc thời gian rõ ràng cho mục tiêu cụ thể</p>
-                <p
-                  >Ban quản lý không tiết lộ khoản đầu tư nào sẽ được thực hiện, doanh thu cần đạt
-                  được và lợi ích cho các bên liên quan</p
-                >
-                <p>Nó thiếu các chi tiết định lượng và định tính </p>
-                <p>“Góp phần vào phúc lợi của Trái đất” hoàn toàn không cụ thể để đạt được ESG</p>
-                <p>Nó thiếu các chi tiết định lượng và định tính </p> -->
               </div>
             </Col>
 
@@ -53,7 +45,11 @@
                   :key="index"
                 >
                   <p class="font-bold text-base">{{ value.question_text }}</p>
-                  <RadioGroup class="radio-group" v-model:value="selectedReason[index]">
+                  <RadioGroup
+                    @change="handleChange(index)"
+                    class="radio-group"
+                    v-model:value="selectedReason[index]"
+                  >
                     <Radio
                       v-for="(option, index) in value.answers"
                       :key="index"
@@ -99,18 +95,25 @@
 </template>
 
 <script setup lang="ts">
-  import { reactive, ref } from 'vue';
+  import { computed, reactive, ref } from 'vue';
   import AssessmentSidebar from './components/AssessmentSidebar.vue';
   import Picture1 from '@/assets/images/Picture1.png';
   import { Button, Card, Col, Radio, RadioGroup, Row } from 'ant-design-vue';
   import Icon from '@/components/Icon/Icon.vue';
 
+  type DataMap = Map<number, Map<number, number>>;
+  type AnyArrayMap = Map<number, any[]>;
   const listQuizzes = ref<any[]>([]);
   const currQuizz = ref<any>({});
   const currIndex = ref(0);
-  const filter = ref<Map<number, any[]>>(new Map());
+  const filter = ref<{ dataMap: DataMap; anyArrayMap: AnyArrayMap }>({
+    dataMap: new Map(),
+    anyArrayMap: new Map(),
+  });
   const selectedReason = ref<{ [key: number]: any }>({});
   const questionNumber = ref<'first' | 'last' | ''>('first');
+
+  const data = ref<DataMap>(new Map());
 
   const radioStyle = reactive({
     display: 'block',
@@ -123,9 +126,9 @@
     currQuizz.value = values.quizz[currIndex.value];
     questionNumber.value = values.questionNumber;
   }
-
+  //map<int, set<pair<int, score>>>
   function handlePrevQuizz() {
-    filter.value.set(
+    filter.value.anyArrayMap.set(
       currIndex.value,
       Object.values(selectedReason.value).filter((i) => i !== undefined),
     );
@@ -136,7 +139,7 @@
   }
 
   function handleNextQuizz() {
-    filter.value.set(
+    filter.value.anyArrayMap.set(
       currIndex.value,
       Object.values(selectedReason.value).filter((i) => i !== undefined),
     );
@@ -145,6 +148,20 @@
     if (Number(currQuizz.value.id) >= listQuizzes.value.length) questionNumber.value = 'last';
     else questionNumber.value = '';
   }
+
+  const handleChange = (index: number) => {
+    const value = selectedReason.value[index];
+    if (!data.value.has(currQuizz.value.id)) {
+      data.value.set(currQuizz.value.id, new Map());
+    }
+    const quizMap = data.value.get(currQuizz.value.id)!;
+    if (!quizMap.has(value.question_id)) {
+      quizMap.set(value.question_id, value.score);
+    } else {
+      quizMap.set(value.question_id, value.score);
+    }
+    filter.value.dataMap = data.value;
+  };
 </script>
 
 <style lang="less" scoped>

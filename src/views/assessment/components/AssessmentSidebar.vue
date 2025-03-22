@@ -14,7 +14,7 @@
           <Col span="6" v-for="(quizz, index) in quizzes" :key="index">
             <div
               @click="handlechangeQuizz(quizz)"
-              :class="`${props.filter.has(index) && props.filter.get(index)?.length === quizzes[index].questions.length ? 'bg-gray-300' : ''} hover:bg-orange-300 border-1 border-gray-300 rounded m-[2px] h-[50px] flex justify-center items-center cursor-pointer relative`"
+              :class="`${props.filter.anyArrayMap.has(index) && props.filter.anyArrayMap.get(index)?.length === quizzes[index].questions.length ? 'bg-gray-300' : ''} hover:bg-orange-300 border-1 border-gray-300 rounded m-[2px] h-[50px] flex justify-center items-center cursor-pointer relative`"
             >
               <div class="font-semibold select-none">{{ index + 1 }}</div>
             </div>
@@ -63,7 +63,14 @@
       class="sticky bottom-0 left-0 right-0 bg-white pt-1 border-t border-gray-300 section-button"
     >
       <FormItem class="text-center mb-1 p-0">
-        <Button block type="primary" size="large" htmlType="submit" class="m-0">
+        <Button
+          block
+          type="primary"
+          @click="handleComplete"
+          size="large"
+          htmlType="submit"
+          class="m-0"
+        >
           <Icon icon="ant-design:check-outlined" /> Hoàn thành
         </Button>
       </FormItem>
@@ -72,19 +79,21 @@
 </template>
 
 <script setup lang="ts">
-  import { getQuizz } from '@/api/sys/quizz';
+  import { complete, getQuizz } from '@/api/sys/quizz';
   import Icon from '@/components/Icon/Icon.vue';
   import { formatNumber } from '@/utils/helper/tsxHelper';
   import { Button, Col, Divider, Form, FormItem, message, Row } from 'ant-design-vue';
   import { onUnmounted, onMounted, unref, ref, watch } from 'vue';
 
+  type DataMap = Map<number, Map<number, number>>;
+  type AnyArrayMap = Map<number, any[]>;
   const emit = defineEmits(['success']);
 
   const formRef = ref<any>();
   const questionNumber = ref<'first' | 'last' | ''>('first');
 
   const props = defineProps<{
-    filter: Map<number, any[]>;
+    filter: { dataMap: DataMap; anyArrayMap: AnyArrayMap };
   }>();
 
   const curIndex = ref(0);
@@ -93,6 +102,7 @@
     currIndex: undefined,
   });
   const quizzes = ref<any[]>([]);
+  const data = ref<DataMap>(new Map());
 
   const remainQuestionNumber = ref<number>(165);
 
@@ -100,11 +110,6 @@
     window.addEventListener('resize', updateHeight);
     setTimeout(updateHeight, 300);
     fetchQuestion();
-    // emit('success', {
-    //   quizz: quizzes.value,
-    //   questionNumber: questionNumber.value,
-    //   currIndex: curIndex.value,
-    // });
   });
 
   watch(
@@ -112,12 +117,13 @@
     (newFilter) => {
       quizzes.value.forEach((quiz) => {
         quiz.questions.forEach((question) => {
-          const selectedAnswers = newFilter.get(question.id) || [];
+          const selectedAnswers = newFilter.anyArrayMap.get(question.id) || [];
           question.answers.forEach((answer) => {
             answer.is_answered = selectedAnswers.includes(answer.id) ? 1 : 0;
           });
         });
       });
+      data.value = newFilter.dataMap;
     },
     { deep: true },
   );
@@ -183,6 +189,29 @@
       questionNumber: questionNumber.value,
       currIndex: (curIndex.value = quizz.id - 1),
     });
+  }
+
+  async function handleComplete() {
+    const totalScores = new Map<number, number>();
+
+    data.value.forEach((innerMap, outerKey) => {
+      let sum = 0;
+      innerMap.forEach((score) => {
+        sum += score;
+      });
+      totalScores.set(outerKey, sum);
+    });
+
+    const dataArray = Array.from(totalScores.entries()).map(([id, score]) => ({
+      id,
+      score,
+    }));
+    try {
+      const response: any = await complete(dataArray);
+      if (response) message.success('Đã hoàn thành bài thi');
+    } catch (error) {
+      message.error('Thao tác thất bại');
+    }
   }
 </script>
 

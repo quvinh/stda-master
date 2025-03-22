@@ -8,6 +8,7 @@ enum Api {
   Quizz = '/quizzes',
   Question = '/questions',
   Answer = '/answers',
+  Complete = '/quiz-attempts',
 }
 
 export const getQuizz = (params: any = {}) => {
@@ -38,4 +39,14 @@ export const getAnswer = (params: any = {}) => {
     params: params,
   };
   return defHttp.get<any>(config);
+};
+
+export const complete = (params: any = {}) => {
+  const token: any = getToken();
+  const config: AxiosRequestConfig<any> = {
+    headers: getDefaultAxiosOption(token),
+    url: Api.Complete,
+    params: params,
+  };
+  return defHttp.post<any>(config);
 };
