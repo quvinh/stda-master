@@ -13,6 +13,7 @@ enum Api {
   SubmitQuiz = '/quiz/submit',
   CountQuizCompleted = '/quiz/count',
   AnsweredQuestions = '/quiz/answered-questions',
+  StartAttempt = '/quiz/start-attempt',
 }
 
 export const getQuizz = (params: any = {}) => {
@@ -56,6 +57,7 @@ export const complete = (params: any = {}) => {
 };
 
 export const saveAnswer = (data: {
+  attempt_id: number;
   quiz_id: number;
   question_id: number;
   score: number;
@@ -98,4 +100,14 @@ export const answeredQuestions = (params?: any) => {
     params: params,
   };
   return defHttp.get<any>(config);
+};
+
+export const startAttemptApi = (params?: any) => {
+  const token: any = getToken();
+  const config: AxiosRequestConfig<any> = {
+    headers: getDefaultAxiosOption(token),
+    url: Api.StartAttempt,
+    params: params,
+  };
+  return defHttp.post<any>(config);
 };

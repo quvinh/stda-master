@@ -72,6 +72,7 @@
           size="large"
           htmlType="submit"
           class="m-0"
+          :disabled="!isStarted"
         >
           <Icon icon="ant-design:check-outlined" /> Hoàn thành
         </Button>
@@ -86,15 +87,19 @@
   import { formatNumber } from '@/utils/helper/tsxHelper';
   import { Button, Col, Divider, Form, FormItem, message, Row } from 'ant-design-vue';
   import { onUnmounted, onMounted, unref, ref, watch } from 'vue';
-  import { number } from 'vue-types';
-  import { filter } from 'xe-utils';
 
   const emit = defineEmits(['success']);
+  const props = defineProps({
+    filter: {
+      type: Object as PropType<{ currIdx: number; is_started: boolean }>,
+    },
+  });
 
   const formRef = ref<any>();
   const questionNumber = ref<'first' | 'last' | ''>('first');
 
-  const curIndex = ref(0);
+  const curIndex = ref<number>(0);
+  const isStarted = ref<boolean>(props.filter?.is_started ?? false);
   const listQuizCompleted = ref<any[]>([]);
   const formData = ref<any>({
     curQuizz: [],
@@ -113,17 +118,13 @@
     window.removeEventListener('resize', updateHeight);
   });
 
-  const props = defineProps({
-    filter: {
-      type: Object as PropType<{ currIdx: number }>,
-    },
-  });
-
   watch(
     () => props.filter,
     (newValue) => {
       if (newValue) {
+        console.log(newValue);
         curIndex.value = newValue.currIdx;
+        isStarted.value = newValue.is_started;
         fetchQuizComleted();
       }
     },
@@ -189,6 +190,10 @@
   }
 
   function handlechangeQuizz(quizz) {
+    if (!isStarted.value) {
+      message.warning('Vui lòng nhấn bắt đầu đánh giá!');
+      return;
+    }
     if (quizz.id == 1) questionNumber.value = 'first';
     else if (quizz.id == quizzes.value.length) questionNumber.value = 'last';
     else questionNumber.value = '';

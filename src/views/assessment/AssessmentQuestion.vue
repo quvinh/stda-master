@@ -7,7 +7,30 @@
 
     <!-- Content -->
     <div class="flex-1 w-[600px] bg-white flex flex-col h-full border-1 border-gray-300">
-      <div class="flex flex-col w-full h-full">
+      <div v-if="!filter.is_started" class="flex h-full justify-center items-center">
+        <div
+          class="relative mt-6 flex w-96 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md"
+        >
+          <div class="p-6">
+            <h5
+              class="mb-2 block font-sans text-xl font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased"
+            >
+              ĐÁNH GIÁ CHUYỂN ĐỔI SỐ
+            </h5>
+            <p
+              class="block font-sans text-base font-light leading-relaxed text-inherit antialiased"
+            >
+              Bạn vui lòng nhấn nút dưới để bắt đầu thực hiện đánh giá
+            </p>
+          </div>
+          <div class="p-6 pt-0">
+            <Button @click="handleStart" block type="primary"
+              ><Icon icon="ant-design:step-forward-outlined" /> Bắt đầu thực hiện đánh giá</Button
+            >
+          </div>
+        </div>
+      </div>
+      <div v-else class="flex flex-col w-full h-full">
         <!-- Vùng nội dung chính -->
         <div class="md:flex-1 flex md:overflow-hidden overflow-auto">
           <Row :gutter="10" class="md:h-full w-full md:flex-1">
@@ -93,10 +116,10 @@
   import Picture1 from '@/assets/images/Picture1.png';
   import { Button, Card, Col, message, Radio, RadioGroup, Row } from 'ant-design-vue';
   import Icon from '@/components/Icon/Icon.vue';
-  import { answeredQuestions, saveAnswer } from '@/api/sys/quizz';
+  import { answeredQuestions, saveAnswer, startAttemptApi } from '@/api/sys/quizz';
 
   const listQuizzes = ref<any[]>([]);
-  const filter = ref<{ currIdx: number }>({ currIdx: 0 });
+  const filter = ref<{ currIdx: number; is_started: boolean }>({ currIdx: 0, is_started: false });
   const currQuizz = ref<any>({});
   const currIndex = ref(0);
   const selectedReason = ref<{ [key: number]: any }>({
@@ -104,6 +127,8 @@
     1: 2, // Câu hỏi thứ hai đã chọn đáp án có ID là 5
   });
   const questionNumber = ref<'first' | 'last' | ''>('first');
+  const attemptId = ref<number>();
+  const timer = ref<any>();
 
   const radioStyle = reactive({
     display: 'block',
@@ -153,20 +178,41 @@
   }
 
   const handleChange = async (index: number, aIndex: number) => {
-    const score = currQuizz.value.questions[index].answers[aIndex].score; // điểm của câu hỏi thuộc quiz
-    const answer_id = currQuizz.value.questions[index].answers[aIndex].id;
-    const question_id = currQuizz.value.questions[index].id; // question_id
-    try {
-      await saveAnswer({
-        quiz_id: currQuizz.value.id,
-        question_id: question_id,
-        score: score,
-        answer_id: answer_id,
-      });
-    } catch (error) {
-      console.error('Lưu câu trả lời thất bại', error);
-    }
+    clearTimeout(timer.value);
+    timer.value = setTimeout(async () => {
+      if (!attemptId.value) {
+        message.error('Attempt ID not found!');
+        return;
+      }
+      const score = currQuizz.value.questions[index].answers[aIndex].score; // điểm của câu hỏi thuộc quiz
+      const answer_id = currQuizz.value.questions[index].answers[aIndex].id;
+      const question_id = currQuizz.value.questions[index].id; // question_id
+      try {
+        await saveAnswer({
+          attempt_id: attemptId.value,
+          quiz_id: currQuizz.value.id,
+          question_id: question_id,
+          score: score,
+          answer_id: answer_id,
+        });
+      } catch (error) {
+        console.error('Lưu câu trả lời thất bại', error);
+      }
+    }, 500);
   };
+
+  /**
+   * @todo
+   * @description Handle start attempt
+   */
+  async function handleStart() {
+    const res: any = await startAttemptApi();
+    if (res) {
+      console.log(res);
+      attemptId.value = res.id;
+      filter.value.is_started = true;
+    }
+  }
 </script>
 
 <style lang="less" scoped>
