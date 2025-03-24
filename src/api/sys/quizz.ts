@@ -6,6 +6,7 @@ import { AxiosRequestConfig } from 'axios';
 
 enum Api {
   Quizz = '/quizzes',
+  QuizzAll = '/quizzes/all',
   Question = '/questions',
   Answer = '/answers',
   Complete = '/quiz-attempts',
@@ -14,14 +15,33 @@ enum Api {
   CountQuizCompleted = '/quiz/count',
   AnsweredQuestions = '/quiz/answered-questions',
   StartAttempt = '/quiz/start-attempt',
+  UserAnswer = '/user-answers',
 }
 
 export const getQuizz = (params: any = {}) => {
   const token: any = getToken();
   const config: AxiosRequestConfig<any> = {
     headers: getDefaultAxiosOption(token),
+    url: Api.QuizzAll,
+    params,
+  };
+  return defHttp.get<any>(config);
+};
+
+export const getFirstQuizz = () => {
+  const token: any = getToken();
+  const config: AxiosRequestConfig<any> = {
+    headers: getDefaultAxiosOption(token),
     url: Api.Quizz,
-    params: params,
+  };
+  return defHttp.get<any>(config);
+};
+
+export const getQuizzById = (id: string | number) => {
+  const token: any = getToken();
+  const config: AxiosRequestConfig<any> = {
+    headers: getDefaultAxiosOption(token),
+    url: Api.Quizz + '/' + id,
   };
   return defHttp.get<any>(config);
 };
@@ -72,12 +92,12 @@ export const saveAnswer = (data: {
   return defHttp.post<any>(config);
 };
 
-export const submitQuiz = (data: { quiz_id: number }) => {
+export const submitQuiz = (params: { attempt_id: number | string }) => {
   const token: any = getToken();
   const config: AxiosRequestConfig<any> = {
     headers: getDefaultAxiosOption(token),
     url: Api.SubmitQuiz,
-    data: data,
+    params,
   };
   return defHttp.post<any>(config);
 };
@@ -87,7 +107,7 @@ export const countQuizComlete = (params?: any) => {
   const config: AxiosRequestConfig<any> = {
     headers: getDefaultAxiosOption(token),
     url: Api.CountQuizCompleted,
-    data: params,
+    params,
   };
   return defHttp.get<any>(config);
 };
@@ -110,4 +130,14 @@ export const startAttemptApi = (params?: any) => {
     params: params,
   };
   return defHttp.post<any>(config);
+};
+
+export const userAnswerApi = (params?: any) => {
+  const token: any = getToken();
+  const config: AxiosRequestConfig<any> = {
+    headers: getDefaultAxiosOption(token),
+    url: Api.UserAnswer,
+    params: params,
+  };
+  return defHttp.get<any>(config);
 };

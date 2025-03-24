@@ -14,7 +14,7 @@
           <Col span="6" v-for="(quizz, index) in quizzes" :key="index">
             <div
               @click="handlechangeQuizz(quizz)"
-              :class="`${listQuizCompleted.some((i) => quizz.id === i.quiz_id) ? 'bg-gray-300' : ''} hover:bg-orange-300 border-1 border-gray-300 rounded m-[2px] h-[50px] flex justify-center items-center cursor-pointer relative`"
+              :class="`${checkUserAnswer(quizz) ? 'bg-gray-300' : ''} hover:bg-orange-300 border-1 ${curIndex === quizz.id ? 'bg-sky-400' : ''} border-gray-300 rounded m-[2px] h-[50px] flex justify-center items-center cursor-pointer relative animate-fade-in`"
             >
               <div class="font-semibold select-none">{{ index + 1 }}</div>
             </div>
@@ -27,7 +27,7 @@
             <span class="font-bold text-black">Tổng số câu hỏi</span>
           </div>
           <div class="w-1.25/4 border-l-1 border-l-gray-300 flex justify-center items-center">
-            <span class="font-bold text-xl text-blue-800">{{ quizzes.length }}</span>
+            <span class="font-bold text-xl text-blue-800">{{ summaryQuiz.total_questions }}</span>
           </div>
         </div>
 
@@ -35,11 +35,15 @@
           <div class="w-2.75/4 flex flex-row gap-1 justify-start items-center p-1">
             <span class="font-bold text-black">Bạn đã trả lời</span>
             <small class="font-semibold text-gray-500"
-              >({{ formatNumber((listQuizCompleted.length / quizzes.length) * 100) }}%)</small
+              >({{
+                formatNumber((summaryQuiz.answered_questions / summaryQuiz.total_questions) * 100)
+              }}%)</small
             >
           </div>
           <div class="w-1.25/4 border-l-1 border-l-gray-300 flex justify-center items-center">
-            <span class="font-bold text-xl text-green-500">{{ listQuizCompleted.length }}</span>
+            <span class="font-bold text-xl text-green-500">{{
+              summaryQuiz.answered_questions
+            }}</span>
           </div>
         </div>
 
@@ -48,13 +52,15 @@
             <span class="font-bold text-black">Câu hỏi còn lại</span>
             <small class="font-semibold text-gray-500"
               >({{
-                formatNumber(((quizzes.length - listQuizCompleted.length) / quizzes.length) * 100)
+                formatNumber(
+                  (summaryQuiz.unanswered_questions / summaryQuiz.total_questions) * 100,
+                )
               }}%)</small
             >
           </div>
           <div class="w-1.25/4 border-l-1 border-l-gray-300 flex justify-center items-center">
             <span class="font-bold text-xl text-red-500">{{
-              quizzes.length - listQuizCompleted.length
+              summaryQuiz.unanswered_questions
             }}</span>
           </div>
         </div>
@@ -82,35 +88,45 @@
 </template>
 
 <script setup lang="ts">
-  import { countQuizComlete, getQuizz, submitQuiz } from '@/api/sys/quizz';
+  import { countQuizComlete, getQuizz, submitQuiz, userAnswerApi } from '@/api/sys/quizz';
   import Icon from '@/components/Icon/Icon.vue';
   import { formatNumber } from '@/utils/helper/tsxHelper';
   import { Button, Col, Divider, Form, FormItem, message, Row } from 'ant-design-vue';
   import { onUnmounted, onMounted, unref, ref, watch } from 'vue';
 
-  const emit = defineEmits(['success']);
+  const emit = defineEmits(['success', 'answered', 'complete']);
   const props = defineProps({
     filter: {
-      type: Object as PropType<{ currIdx: number; is_started: boolean }>,
+      type: Object as PropType<{
+        currIdx: number;
+        is_started: boolean;
+        attempt_id?: string | number;
+      }>,
     },
   });
 
   const formRef = ref<any>();
-  const questionNumber = ref<'first' | 'last' | ''>('first');
 
   const curIndex = ref<number>(0);
   const isStarted = ref<boolean>(props.filter?.is_started ?? false);
-  const listQuizCompleted = ref<any[]>([]);
+  const attemptId = ref<number | string | undefined>(props.filter?.attempt_id);
+  const summaryQuiz = ref<{
+    total_questions: number;
+    answered_questions: number;
+    unanswered_questions: number;
+  }>({ total_questions: 0, answered_questions: 0, unanswered_questions: 0 });
   const formData = ref<any>({
     curQuizz: [],
     currIndex: undefined,
   });
   const quizzes = ref<any[]>([]);
+  const userAnswers = ref<{ quiz_id: number; question_id: number; answer_id: number }[]>([]);
 
   onMounted(async () => {
     window.addEventListener('resize', updateHeight);
     setTimeout(updateHeight, 300);
     fetchQuestion();
+    fetchUserAnswer();
     fetchQuizComleted();
   });
 
@@ -122,9 +138,10 @@
     () => props.filter,
     (newValue) => {
       if (newValue) {
-        console.log(newValue);
         curIndex.value = newValue.currIdx;
         isStarted.value = newValue.is_started;
+        attemptId.value = newValue.attempt_id;
+        fetchUserAnswer();
         fetchQuizComleted();
       }
     },
@@ -138,9 +155,30 @@
         quizzes.value = response;
         emit('success', {
           quizz: quizzes.value,
-          questionNumber: questionNumber.value,
           currIndex: curIndex.value,
         });
+      }
+    } catch (error) {
+      message.error('THAO TÁC THẤT BẠI');
+    }
+  }
+
+  async function fetchUserAnswer() {
+    if (!attemptId.value) {
+      return;
+    }
+    try {
+      userAnswers.value = [];
+      const response: any = await userAnswerApi({
+        attempt_id: attemptId.value,
+      });
+      if (response) {
+        userAnswers.value = response.map(({ quiz_id, answer_id, question_id }) => ({
+          quiz_id,
+          answer_id,
+          question_id,
+        }));
+        emit('answered', { answered: userAnswers.value });
       }
     } catch (error) {
       message.error('THAO TÁC THẤT BẠI');
@@ -174,15 +212,16 @@
     emit('success', form.getFieldsValue());
   }
 
-  // function isFlagged(index) {
-  //   return [1, 3, 7, 25].includes(index);
-  // }
-
   async function fetchQuizComleted() {
+    if (!attemptId.value) {
+      return;
+    }
     try {
-      const response: any = await countQuizComlete();
+      const response: any = await countQuizComlete({
+        attempt_id: attemptId.value,
+      });
       if (response) {
-        listQuizCompleted.value = response;
+        summaryQuiz.value = response;
       }
     } catch (error) {
       message.error('THAO TÁC THẤT BẠI');
@@ -194,31 +233,34 @@
       message.warning('Vui lòng nhấn bắt đầu đánh giá!');
       return;
     }
-    if (quizz.id == 1) questionNumber.value = 'first';
-    else if (quizz.id == quizzes.value.length) questionNumber.value = 'last';
-    else questionNumber.value = '';
     emit('success', {
       quizz: quizzes.value,
-      questionNumber: questionNumber.value,
-      currIndex: (curIndex.value = quizz.id - 1),
+      currIndex: quizz.id,
     });
   }
 
   async function handleComplete() {
+    if (!attemptId.value) {
+      console.error('Attempt ID not found!');
+      return;
+    }
     try {
-      const response: any = await submitQuiz({ quiz_id: quizzes.value[curIndex.value].id });
+      const response: any = await submitQuiz({ attempt_id: attemptId.value });
       if (response) {
         message.success('NỘP BÀI THÀNH CÔNG');
-        emit('success', {
-          quizz: quizzes.value,
-          questionNumber: questionNumber.value,
-          currIndex: curIndex.value,
-        });
+        emit('complete', {});
       }
-      fetchQuizComleted();
     } catch (error) {
       message.error('NỘP BÀI THẤT BẠI');
     }
+  }
+
+  function checkUserAnswer(record: any): boolean {
+    const questions: any[] = record?.questions || [];
+    const answereds = userAnswers.value.filter(
+      ({ quiz_id }) => Number(quiz_id) === Number(record?.id),
+    );
+    return questions.length === answereds.length;
   }
 </script>
 
