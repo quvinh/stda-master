@@ -16,6 +16,8 @@ import { router, setupRouter } from '@/router';
 import { setupRouterGuard } from '@/router/guard';
 import { setupStore } from '@/store';
 // import ganttastic from '@infectoone/vue-ganttastic';
+import Particles from '@tsparticles/vue3';
+import { loadSlim } from '@tsparticles/slim';
 import App from './App.vue';
 
 window.global ||= window;
@@ -50,6 +52,12 @@ async function bootstrap() {
   // https://next.router.vuejs.org/api/#isready
   // await router.isReady();
   // app.use(ganttastic);
+  app.use(Particles, {
+    init: async (engine) => {
+      // await loadFull(engine) // Dùng nếu bạn cài `tsparticles` (bản full)
+      await loadSlim(engine); // Dùng nếu bạn cài `@tsparticles/slim` (bản gọn)
+    },
+  });
 
   app.mount('#app');
 }
