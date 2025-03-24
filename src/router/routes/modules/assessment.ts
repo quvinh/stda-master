@@ -21,6 +21,14 @@ const assessment: AppRouteModule = {
         title: 'Thực hiện đánh giá',
       },
     },
+    {
+      path: 'statistical',
+      name: 'UIStatistical',
+      component: () => import('@/views/assessment/StatisticalHistory.vue'),
+      meta: {
+        title: 'Kết quả đánh giá',
+      },
+    },
   ],
 };
 

@@ -16,6 +16,7 @@ enum Api {
   AnsweredQuestions = '/quiz/answered-questions',
   StartAttempt = '/quiz/start-attempt',
   UserAnswer = '/user-answers',
+  QuizAttemptList = '/quiz-attempts/list',
 }
 
 export const getQuizz = (params: any = {}) => {
@@ -137,6 +138,16 @@ export const userAnswerApi = (params?: any) => {
   const config: AxiosRequestConfig<any> = {
     headers: getDefaultAxiosOption(token),
     url: Api.UserAnswer,
+    params: params,
+  };
+  return defHttp.get<any>(config);
+};
+
+export const getQuizAttemptListApi = (params?: any) => {
+  const token: any = getToken();
+  const config: AxiosRequestConfig<any> = {
+    headers: getDefaultAxiosOption(token),
+    url: Api.QuizAttemptList,
     params: params,
   };
   return defHttp.get<any>(config);

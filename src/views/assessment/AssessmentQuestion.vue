@@ -48,10 +48,10 @@
             </h5>
           </div>
           <div class="p-6 pt-0">
-            <Button @click="handleViewStatistical" block type="primary"
-              ><Icon icon="ant-design:step-forward-outlined" /> Xem đánh giá</Button
+            <Button class="mb-2" @click="handleViewStatistical" block type="primary"
+              ><Icon icon="ant-design:area-chart-outlined" /> Xem kết quả đánh giá</Button
             >
-            <Button @click="handleStart" block type="primary"
+            <Button @click="handleStart" block
               ><Icon icon="ant-design:step-forward-outlined" /> Bắt đầu thực hiện lại đánh
               giá</Button
             >
