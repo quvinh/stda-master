@@ -29,6 +29,18 @@ const assessment: AppRouteModule = {
         title: 'Kết quả đánh giá',
       },
     },
+    {
+      path: 'statistical-detail/:id',
+      name: 'StatisticalDetail',
+      meta: {
+        hideMenu: true,
+        title: 'Chi tiết đánh giá',
+        ignoreKeepAlive: true,
+        showMenu: false,
+        currentActiveMenu: '/assessment/index',
+      },
+      component: () => import('@/views/assessment/StatisticalDetail.vue'),
+    },
   ],
 };
 

@@ -14,7 +14,7 @@
     <div class="flex-1 w-[600px] bg-white flex flex-col h-full border-1 border-gray-300">
       <div v-if="!filter.is_started" class="flex h-full justify-center items-center">
         <div
-          class="relative mt-6 flex w-96 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md"
+          class="relative mt-6 flex w-120 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md"
           v-if="!isCompleted"
         >
           <div class="p-6">
@@ -37,7 +37,7 @@
         </div>
 
         <div
-          class="relative mt-6 flex w-96 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md"
+          class="relative mt-6 flex w-120 flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md"
           v-else
         >
           <div class="p-6">
@@ -145,7 +145,9 @@
   import { Button, Card, Col, message, Radio, RadioGroup, Row } from 'ant-design-vue';
   import { reactive, ref } from 'vue';
   import AssessmentSidebar from './components/AssessmentSidebar.vue';
+  import { useGo } from '@/hooks/web/usePage';
 
+  const go = useGo();
   const listQuizzes = ref<any[]>([]);
   const filter = ref<{ currIdx: number; is_started: boolean; attempt_id?: string | number }>({
     currIdx: 0,
@@ -272,7 +274,9 @@
   }
 
   function handleViewStatistical() {
-    //
+    if (attemptId.value) {
+      go('/assessment/statistical-detail/' + attemptId.value);
+    }
   }
 </script>
 

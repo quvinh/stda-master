@@ -29,7 +29,7 @@
                   {
                     label: 'Xem đánh giá',
                     icon: 'ant-design:eye-outlined',
-                    onClick: () => {},
+                    onClick: handleView.bind(null, record),
                   },
                 ]"
               />
@@ -50,7 +50,9 @@
   import { onMounted, ref } from 'vue';
   import StatisticalHistorySidebar from './components/StatisticalHistorySidebar.vue';
   import { getActionColumn, getBasicColumns } from './components/tableData';
+  import { useGo } from '@/hooks/web/usePage';
 
+  const go = useGo();
   const records = ref<any[]>([]);
   const loading = ref<boolean>(false);
 
@@ -120,5 +122,11 @@
   function handleSidebarFilter(values: any) {
     filter.value = values;
     fetchData({ ...values });
+  }
+
+  function handleView(record: Recordable) {
+    if (record?.id) {
+      go('/assessment/statistical-detail/' + record.id);
+    }
   }
 </script>

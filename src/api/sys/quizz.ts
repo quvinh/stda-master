@@ -17,6 +17,8 @@ enum Api {
   StartAttempt = '/quiz/start-attempt',
   UserAnswer = '/user-answers',
   QuizAttemptList = '/quiz-attempts/list',
+  QuizAttemptAverage = '/quiz-attempts/stats/{userId}/{attemptId}',
+  QuizAttemptFrequency = '/quiz-attempts/get-stats/{questionId}',
 }
 
 export const getQuizz = (params: any = {}) => {
@@ -149,6 +151,26 @@ export const getQuizAttemptListApi = (params?: any) => {
     headers: getDefaultAxiosOption(token),
     url: Api.QuizAttemptList,
     params: params,
+  };
+  return defHttp.get<any>(config);
+};
+
+export const getQuizAttemptById = (id: number | string) => {
+  const token: any = getToken();
+  const config: AxiosRequestConfig<any> = {
+    headers: getDefaultAxiosOption(token),
+    url: Api.Complete + '/' + id,
+  };
+  return defHttp.get<any>(config);
+};
+
+export const getQuizAttemptAverage = (userId: number | string, attemptId: number | string) => {
+  const token: any = getToken();
+  const config: AxiosRequestConfig<any> = {
+    headers: getDefaultAxiosOption(token),
+    url: String(Api.QuizAttemptAverage)
+      .replace('{userId}', String(userId))
+      .replace('{attemptId}', String(attemptId)),
   };
   return defHttp.get<any>(config);
 };

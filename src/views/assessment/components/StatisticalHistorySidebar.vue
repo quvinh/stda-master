@@ -8,17 +8,11 @@
     layout="vertical"
   >
     <div class="flex-1 flex flex-col h-full pt-5">
-      <FormItem label="Mã câu hỏi" name="id">
-        <Input v-model:value="formData.id" placeholder="Vui lòng nhập" />
+      <FormItem label="Thời gian bắt đầu" name="started_at">
+        <DatePicker class="w-full" v-model:value="formData.started_at" />
       </FormItem>
-      <FormItem label="Tên câu hỏi" name="question_text">
-        <Input v-model:value="formData.question_text" placeholder="Vui lòng nhập" />
-      </FormItem>
-      <FormItem label="Mã Quiz" name="quiz_id">
-        <Select :options="[]" v-model:value="formData.quiz_id" placeholder="Vui lòng nhập" />
-      </FormItem>
-      <FormItem label="Người tạo" name="created_by">
-        <Input v-model:value="formData.created_by" placeholder="Vui lòng nhập" />
+      <FormItem label="Thời gian kết thúc" name="finished_at">
+        <DatePicker class="w-full" v-model:value="formData.finished_at" />
       </FormItem>
     </div>
 
@@ -36,7 +30,7 @@
 
 <script setup lang="ts">
   import Icon from '@/components/Icon/Icon.vue';
-  import { Button, Form, FormItem, Input, Select } from 'ant-design-vue';
+  import { Button, DatePicker, Form, FormItem, Input, Select } from 'ant-design-vue';
   import { onUnmounted, onMounted, unref, ref, reactive } from 'vue';
 
   const emit = defineEmits(['success']);
