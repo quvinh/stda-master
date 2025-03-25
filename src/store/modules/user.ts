@@ -15,6 +15,7 @@ import {
   updateUserInfoApi,
   createApi,
   deleteApi,
+  registerApi,
 } from '@/api/sys/user';
 import { useI18n } from '@/hooks/web/useI18n';
 import { useMessage } from '@/hooks/web/useMessage';
@@ -261,6 +262,17 @@ export const useUserStore = defineStore({
     async delete(id: number): Promise<any | null> {
       try {
         return await deleteApi(id);
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+
+    /**
+     * @description: register
+     */
+    async register(params: any = {}): Promise<any> {
+      try {
+        return await registerApi(params);
       } catch (error) {
         return Promise.reject(error);
       }

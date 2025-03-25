@@ -33,6 +33,21 @@ export function loginApi(params: LoginParams, mode: ErrorMessageMode = 'modal') 
 }
 
 /**
+ * @description: user register api
+ */
+export function registerApi(params: LoginParams, mode: ErrorMessageMode = 'modal') {
+  return defHttp.post<LoginResultModel>(
+    {
+      url: Api.register,
+      params,
+    },
+    {
+      errorMessageMode: mode,
+    },
+  );
+}
+
+/**
  * @description: getUserInfo
  */
 export function getUserInfo() {
