@@ -15,7 +15,7 @@
       >
         <template #extra>
           <Space>
-            <Button size="small" :href="`${BACKEND_URL}/excel/Users.xlsx`">
+            <!-- <Button size="small" :href="`${BACKEND_URL}/excel/Users.xlsx`">
               <Icon icon="ant-design:download-outlined" />
               File upload mẫu
             </Button>
@@ -35,7 +35,7 @@
                 <Icon icon="ant-design:upload-outlined" />
                 Upload file
               </Button>
-            </Upload>
+            </Upload> -->
             <!-- <Button size="small" type="primary" @click="exportData">
               <Icon icon="ant-design:file-excel-outlined" />
               Xuất Excel
@@ -91,15 +91,14 @@
   import { pageSizeOptions } from '@/enums/paginationEnum';
   import { useUserStore } from '@/store/modules/user';
   import { IPagination } from '@/store/types/pagination';
-  import { getToken } from '@/utils/auth';
-  import { Button, Card, message, Space, Upload } from 'ant-design-vue';
+  import { Button, Card, message, Space } from 'ant-design-vue';
   import { PaginationProps } from 'ant-design-vue/lib';
   import { onMounted, ref } from 'vue';
   import AccountModal from './components/AccountModal.vue';
   import AccountSidebar from './components/AccountSidebar.vue';
   import { getActionColumn, getBasicColumns } from './components/tableData';
 
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000';
+  // const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000';
 
   const userStore = useUserStore();
   const users = ref<any[]>([]);

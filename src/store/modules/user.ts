@@ -153,7 +153,8 @@ export const useUserStore = defineStore({
       try {
         if (!this.getToken) return null;
         const userInfo = await getUserInfo();
-        const { permissions = [] } = userInfo;
+        console.log(userInfo);
+        // const { permissions = [] } = userInfo;
         // if (isArray(roles)) {
         //   const roleList = roles.map((item) => item.value) as RoleEnum[];
         //   this.setRoleList(roleList);
@@ -161,12 +162,15 @@ export const useUserStore = defineStore({
         //   userInfo.roles = [];
         //   this.setRoleList([]);
         // }
-        if (isArray(permissions)) {
-          const permissionList = permissions.map((item) => item.slug) as PermissionEnum[];
-          this.setPermissionList(permissionList);
-        } else {
-          userInfo.permissions = [];
-          this.setRoleList([]);
+        // if (isArray(permissions)) {
+        //   const permissionList = permissions.map((item) => item.slug) as PermissionEnum[];
+        //   this.setPermissionList(permissionList);
+        // } else {
+        //   userInfo.permissions = [];
+        //   this.setRoleList([]);
+        // }
+        if (userInfo?.role) {
+          this.setPermissionList([userInfo.role]);
         }
         this.setUserInfo(userInfo);
         return userInfo;
