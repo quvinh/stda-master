@@ -134,14 +134,14 @@
   const router = useRouter();
   const route = useRoute();
 
-  onMounted(() => {
-    updateDeviceType();
-    window.addEventListener('resize', updateDeviceType);
-  });
+  // onMounted(() => {
+  //   updateDeviceType();
+  //   window.addEventListener('resize', updateDeviceType);
+  // });
 
-  onBeforeUnmount(() => {
-    window.removeEventListener('resize', updateDeviceType);
-  });
+  // onBeforeUnmount(() => {
+  //   window.removeEventListener('resize', updateDeviceType);
+  // });
 
   async function handleLogin() {
     const data = await validForm();

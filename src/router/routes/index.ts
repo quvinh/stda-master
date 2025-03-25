@@ -8,7 +8,6 @@ import { t } from '@/hooks/web/useI18n';
 
 // import.meta.glob() Directly import all modules Vite-specific functions
 const modules = import.meta.glob('./modules/**/*.ts', { eager: true });
-const oiRoutes = import.meta.glob('./oi-route/**/*.ts', { eager: true });
 const routeModuleList: AppRouteModule[] = [];
 const oiRouteModuleList: AppRouteModule[] = [];
 
@@ -17,13 +16,6 @@ Object.keys(modules).forEach((key) => {
   const mod = (modules as Recordable)[key].default || {};
   const modList = Array.isArray(mod) ? [...mod] : [mod];
   routeModuleList.push(...modList);
-});
-
-// Add to the route collection
-Object.keys(oiRoutes).forEach((key) => {
-  const mod = (oiRoutes as Recordable)[key].default || {};
-  const modList = Array.isArray(mod) ? [...mod] : [mod];
-  oiRouteModuleList.push(...modList);
 });
 
 export const asyncRoutes = [PAGE_NOT_FOUND_ROUTE, ...routeModuleList, ...oiRouteModuleList];

@@ -17,8 +17,8 @@
           icon="ion:document-text-outline"
           v-if="getShowDoc"
         /> -->
-        <MenuItem key="oi" text="OI MES" icon="ant-design:product-outlined" />
-        <Menu.Divider v-if="getShowDoc" />
+        <!-- <MenuItem key="oi" text="OI MES" icon="ant-design:product-outlined" />
+        <Menu.Divider v-if="getShowDoc" /> -->
         <!-- <MenuItem
           v-if="getShowApi"
           key="api"

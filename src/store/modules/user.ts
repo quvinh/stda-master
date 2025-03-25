@@ -141,9 +141,10 @@ export const useUserStore = defineStore({
           permissionStore.setDynamicAddedRoute(true);
         }
 
+        await router.replace(PageEnum.BASE_HOME);
         // goHome && (await router.replace(userInfo?.homePath || PageEnum.BASE_HOME));
-        if (goHome) await router.replace(userInfo?.homePath || PageEnum.BASE_HOME);
-        else await router.replace(userInfo?.homePath || PageEnum.OI_PAGE);
+        // if (goHome) await router.replace(userInfo?.homePath || PageEnum.BASE_HOME);
+        // else await router.replace(userInfo?.homePath || PageEnum.OI_PAGE);
       }
       return userInfo;
     },

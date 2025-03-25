@@ -8,7 +8,7 @@ const assessment: AppRouteModule = {
   component: LAYOUT,
   redirect: '/assessment/index',
   meta: {
-    orderNo: 30,
+    orderNo: 10,
     icon: 'ant-design:question-circle-outlined',
     title: 'Đánh giá chuyển đổi số',
   },

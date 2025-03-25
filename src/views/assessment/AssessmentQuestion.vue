@@ -1,5 +1,5 @@
 <template>
-  <div class="flex pt-1 h-full">
+  <div class="flex h-full">
     <!-- Sidebar query -->
     <div class="hidden lg:block w-[270px] mr-1 z-10">
       <AssessmentSidebar

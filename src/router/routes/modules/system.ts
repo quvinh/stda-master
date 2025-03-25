@@ -12,6 +12,8 @@ const system: AppRouteModule = {
     orderNo: 200,
     icon: 'ant-design:setting-outlined',
     title: t('routes.config.system'),
+    hideMenu: true,
+    ignoreRoute: true,
   },
   children: [
     {
